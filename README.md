@@ -19,6 +19,12 @@ line consistent when the target leaves the camera view.
 Model card, training phases, curves and per-class results: [`release/qwen3vl4b_uavflow_vla/`](release/qwen3vl4b_uavflow_vla/).
 Full report: [`reports/uav_flow_closed_loop_20260925/REPORT.md`](reports/uav_flow_closed_loop_20260925/REPORT.md).
 
+## Evaluation rule
+
+The 273 benchmark test tasks are reserved for the final paper numbers; development decisions use
+validation tasks built from held-out UAV-Flow-Sim flights. The 100-task results above were used
+during development (see docs/LOG.md, D187).
+
 ## Layout
 
 | Path | What |

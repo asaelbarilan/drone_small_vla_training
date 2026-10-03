@@ -1,5 +1,12 @@
 # CURRENT VLA PLAN (updated 2026-10-03, D182) - the live list; everything below it is older history
 
+> **RULE 1 (user, 2026-10-03): the 273 UAV-Flow-Eval benchmark test tasks are NOT flown again,
+> for any purpose (tuning, checks, ablations), until the user decides otherwise.** The 100 of them
+> flown so far (first 10 per class) were used for development decisions (goal memory, deadband);
+> the paper must say so. Decisions from now on use validation tasks built from the 504 held-out
+> UAV-Flow-Sim flights (D169, `release/qwen3vl4b_uavflow_vla/sim_val_flights.json`).
+
+
 Goal: beat WorldVLN (79.1% success on UAV-Flow) with a 4B VLA that fits 8 GB.
 Where we are: 50% success on our 100-task test (OpenVLA-UAV 67%). Biggest losses: Land, Pass,
 Rotate, Turn = "knowing when to stop" (docs/research/VLA_BEYOND_WORLDVLN_20260930.md).

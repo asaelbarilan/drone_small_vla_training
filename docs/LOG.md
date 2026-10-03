@@ -673,3 +673,13 @@ memory + deadband), start adapter = the final model (update 31,000).
 - Bug found and fixed: value loss 3.5 -> 211 after one update - the head reads raw last-layer
   hidden states (large values), so one Adam step moved V wildly. The head now reads
   layer-normalised hidden states.
+
+
+## D187 (2026-10-03): rule 1 - the 273 test tasks are off limits
+
+> **RULE 1 (user, 2026-10-03): the 273 UAV-Flow-Eval benchmark test tasks are NOT flown again,
+> for any purpose (tuning, checks, ablations), until the user decides otherwise.** The 100 of them
+> flown so far (first 10 per class) were used for development decisions (goal memory, deadband);
+> the paper must say so. Decisions from now on use validation tasks built from the 504 held-out
+> UAV-Flow-Sim flights (D169, `release/qwen3vl4b_uavflow_vla/sim_val_flights.json`).
+
