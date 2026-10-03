@@ -1,0 +1,68 @@
+{
+  "source_shard": [
+    "/home/ubuntu/data/uav_flow_raw/train-00000-of-00054.parquet",
+    "/home/ubuntu/data/uav_flow_raw/train-00001-of-00054.parquet",
+    "/home/ubuntu/data/uav_flow_raw/train-00002-of-00054.parquet",
+    "/home/ubuntu/data/uav_flow_raw/train-00003-of-00054.parquet",
+    "/home/ubuntu/data/uav_flow_raw/train-00004-of-00054.parquet",
+    "/home/ubuntu/data/uav_flow_raw/train-00005-of-00054.parquet",
+    "/home/ubuntu/data/uav_flow_raw/train-00006-of-00054.parquet",
+    "/home/ubuntu/data/uav_flow_raw/train-00007-of-00054.parquet",
+    "/home/ubuntu/data/uav_flow_raw/train-00008-of-00054.parquet",
+    "/home/ubuntu/data/uav_flow_raw/train-00009-of-00054.parquet"
+  ],
+  "clip_percentile": 0.1,
+  "format": "official OpenVLA-UAV uav_dataset.py",
+  "verified_against_official_loop": {
+    "episodes": 5000,
+    "mismatches": 0
+  },
+  "image_log_length_mismatch_episodes": 0,
+  "splits": {
+    "train": {
+      "episodes": 1987,
+      "frames": 133637,
+      "samples_with_oversampling": 153507
+    },
+    "val": {
+      "episodes": 791,
+      "frames": 54967,
+      "samples_with_oversampling": 62877
+    },
+    "dropped": {
+      "episodes": 2222,
+      "frames": 145420,
+      "samples_with_oversampling": 167640
+    }
+  },
+  "instructions_differ": 4710,
+  "action_stats_train": {
+    "q01": [
+      -0.544166,
+      -0.442002,
+      -0.132805,
+      -0.45671
+    ],
+    "q99": [
+      1.188142,
+      0.442269,
+      0.193043,
+      0.276475
+    ],
+    "mean": [
+      0.118538,
+      0.001269,
+      0.000355,
+      -0.001405
+    ],
+    "std": [
+      0.152435,
+      0.091525,
+      0.022723,
+      0.089591
+    ],
+    "note": "percentiles 0.1/99.9 of all train actions incl. zero last actions, no oversampling; the official recipe uses 1/99"
+  },
+  "episodes_sha256": "19161836d7a5c4e99ede3d681ca064eae8abbc43ef85aeeea130de3d4b5701de",
+  "example_prompt": "Current State: -0.1,-0.0,0.1,-0.0, What action should the uav take to Suggest stepping back from the lamp post ahead?"
+}

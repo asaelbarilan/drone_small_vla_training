@@ -1,0 +1,56 @@
+{
+  "source_shard": "D:/drone_vla_pilot/data/uav_flow_20260921/train-00000-of-00054.parquet",
+  "format": "official OpenVLA-UAV uav_dataset.py",
+  "verified_against_official_loop": {
+    "episodes": 500,
+    "mismatches": 0
+  },
+  "image_log_length_mismatch_episodes": 0,
+  "splits": {
+    "train": {
+      "episodes": 308,
+      "frames": 21973,
+      "samples_with_oversampling": 25053
+    },
+    "val": {
+      "episodes": 62,
+      "frames": 4178,
+      "samples_with_oversampling": 4798
+    },
+    "dropped": {
+      "episodes": 130,
+      "frames": 8367,
+      "samples_with_oversampling": 9667
+    }
+  },
+  "instructions_differ": 478,
+  "action_stats_train": {
+    "q01": [
+      -0.235365,
+      -0.229145,
+      -0.08923,
+      -0.08502
+    ],
+    "q99": [
+      0.460666,
+      0.218996,
+      0.087387,
+      0.10453
+    ],
+    "mean": [
+      0.088518,
+      0.003626,
+      -0.000547,
+      0.001131
+    ],
+    "std": [
+      0.12487,
+      0.078059,
+      0.023504,
+      0.128664
+    ],
+    "note": "official: q01/q99 of all actions incl. zero last actions, no oversampling"
+  },
+  "episodes_sha256": "d6dd8f67868eb45a86477d2dfb370df5509b21b5250ae1b43e405c9f33c7f5a4",
+  "example_prompt": "Current State: 0.2,0.0,-0.0,0.0, What action should the uav take to Proceed to the front of the tree?"
+}

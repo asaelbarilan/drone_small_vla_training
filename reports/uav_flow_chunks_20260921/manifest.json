@@ -1,0 +1,31 @@
+{
+  "source_shard": "D:/drone_vla_pilot/data/uav_flow_20260921/train-00000-of-00054.parquet",
+  "chunk_steps": 8,
+  "site_grid_metres": 300,
+  "val_target": 0.12,
+  "episodes": 500,
+  "steps": 34018,
+  "sites": 30,
+  "steps_sha256": "08df376d7eee888c0b40aab9b9c80d96d6899b4c3864c4521f4ddf3c058ccc7e",
+  "episodes_sha256": "f30b1f353a8bae8fb281f5b52ecc398df5b5a53881e69fa39502bf5f4f74912e",
+  "split_unseen": {
+    "train_episodes": 308,
+    "val_episodes": 62,
+    "dropped_episodes": 130,
+    "val_sites": 3,
+    "train_steps": 21665,
+    "val_steps": 4116,
+    "leakage_checks": {
+      "shared_episodes": 0,
+      "shared_instructions": 0,
+      "shared_sites": 0
+    }
+  },
+  "split_seen": {
+    "train_episodes": 412,
+    "val_episodes": 88,
+    "val_instructions_also_in_train": 47,
+    "note": "kept only to quantify our own seen-to-unseen gap; never report alone"
+  },
+  "task": "current frame + instruction -> next 8 6-DoF steps, episode start frame"
+}

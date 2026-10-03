@@ -1,0 +1,9 @@
+{
+  "sim_flights_added": 9941,
+  "sim_flights_skipped": 168,
+  "sim_frames": 307834,
+  "sim_samples_with_oversampling": 407244,
+  "sim_steps_outside_action_range": 0.0558,
+  "units": "simulator centimetres divided by 100 to metres (x, y, z); yaw unchanged",
+  "excluded_list": "/home/ubuntu/uav_flow_sim_excluded.json"
+}

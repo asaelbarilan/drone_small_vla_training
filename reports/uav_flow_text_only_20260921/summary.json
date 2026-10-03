@@ -1,0 +1,68 @@
+{
+  "shard": "D:/drone_vla_pilot/data/uav_flow_20260921/train-00000-of-00054.parquet",
+  "episodes": 500,
+  "waypoints": 20,
+  "distinct_instructions": 151,
+  "episodes_with_instruction_sibling": 428,
+  "instruction_group_sizes": {
+    "1": 72,
+    "2": 28,
+    "3": 11,
+    "4": 10,
+    "5": 4,
+    "6": 6,
+    "7": 2,
+    "8": 3,
+    "9": 1,
+    "10": 3,
+    "11": 3,
+    "12": 2,
+    "13": 1,
+    "16": 2,
+    "20": 1,
+    "21": 1,
+    "23": 1
+  },
+  "units": "metres for the three translation channels; rotation channels excluded from the error",
+  "all_episodes": [
+    {
+      "predictor": "global (no text)",
+      "n": 500,
+      "final_error_median": 5.468,
+      "final_error_mean": 6.474,
+      "waypoint_error_median": 2.661,
+      "waypoint_error_mean": 3.052
+    },
+    {
+      "predictor": "text",
+      "n": 500,
+      "final_error_median": 2.827,
+      "final_error_mean": 3.883,
+      "waypoint_error_median": 1.49,
+      "waypoint_error_mean": 1.974
+    }
+  ],
+  "episodes_with_siblings_only": [
+    {
+      "predictor": "global (no text)",
+      "n": 428,
+      "final_error_median": 5.468,
+      "final_error_mean": 6.448,
+      "waypoint_error_median": 2.635,
+      "waypoint_error_mean": 3.029
+    },
+    {
+      "predictor": "text",
+      "n": 428,
+      "final_error_median": 2.498,
+      "final_error_mean": 3.421,
+      "waypoint_error_median": 1.352,
+      "waypoint_error_mean": 1.77
+    }
+  ],
+  "rotation_only_episodes": 66,
+  "track_extent_metres": {
+    "median_final_distance": 7.386,
+    "max_final_distance": 40.622
+  }
+}

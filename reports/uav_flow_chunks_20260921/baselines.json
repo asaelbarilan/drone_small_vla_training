@@ -1,0 +1,35 @@
+{
+  "neighbours": 5,
+  "note": "text baselines never see an image; the bar is the lower of the two",
+  "split_unseen": {
+    "train_episodes": 308,
+    "val_episodes": 62,
+    "val_instructions_with_exact_train_match": 0,
+    "median_trajectory_m": 10.146,
+    "no_text": {
+      "median_final_error_m": 6.868
+    },
+    "text_nearest_neighbour": {
+      "k": 5,
+      "median_final_error_m": 4.496,
+      "median_top1_similarity": 0.629
+    },
+    "target_to_beat_m": 4.496
+  },
+  "split_seen": {
+    "train_episodes": 412,
+    "val_episodes": 88,
+    "val_instructions_with_exact_train_match": 76,
+    "median_trajectory_m": 7.342,
+    "no_text": {
+      "median_final_error_m": 5.786
+    },
+    "text_nearest_neighbour": {
+      "k": 5,
+      "median_final_error_m": 2.425,
+      "median_top1_similarity": 0.994
+    },
+    "target_to_beat_m": 2.425
+  },
+  "baseline_gap_unseen_minus_seen_m": 2.071
+}

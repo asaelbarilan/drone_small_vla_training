@@ -1,0 +1,104 @@
+{
+  "d178_s18000": {
+    "flights": 100,
+    "success": 0.52,
+    "mean_ndtw": 0.3665,
+    "per_class_success": {
+      "Turn": "5/10",
+      "Move": "7/10",
+      "Shift": "9/10",
+      "Rotate": "5/10",
+      "Surround": "1/10",
+      "Ascend/Descend": "9/10",
+      "Approach": "5/10",
+      "Retreat": "8/10",
+      "Pass": "1/10",
+      "Land": "2/10"
+    }
+  },
+  "d178_s31000_goalmem": {
+    "flights": 100,
+    "success": 0.61,
+    "mean_ndtw": 0.409,
+    "per_class_success": {
+      "Turn": "3/10",
+      "Move": "10/10",
+      "Shift": "7/10",
+      "Rotate": "6/10",
+      "Surround": "1/10",
+      "Ascend/Descend": "7/10",
+      "Approach": "7/10",
+      "Retreat": "10/10",
+      "Pass": "6/10",
+      "Land": "4/10"
+    }
+  },
+  "d178_s31000_memdead": {
+    "flights": 100,
+    "success": 0.69,
+    "mean_ndtw": 0.4488,
+    "per_class_success": {
+      "Turn": "3/10",
+      "Move": "10/10",
+      "Shift": "9/10",
+      "Rotate": "10/10",
+      "Surround": "1/10",
+      "Ascend/Descend": "9/10",
+      "Approach": "8/10",
+      "Retreat": "10/10",
+      "Pass": "4/10",
+      "Land": "5/10"
+    }
+  },
+  "d178_s31000_progress": {
+    "flights": 100,
+    "success": 0.61,
+    "mean_ndtw": 0.3834,
+    "per_class_success": {
+      "Turn": "4/10",
+      "Move": "8/10",
+      "Shift": "9/10",
+      "Rotate": "8/10",
+      "Surround": "1/10",
+      "Ascend/Descend": "9/10",
+      "Approach": "6/10",
+      "Retreat": "9/10",
+      "Pass": "1/10",
+      "Land": "6/10"
+    }
+  },
+  "openvla": {
+    "flights": 100,
+    "success": 0.67,
+    "mean_ndtw": 0.395,
+    "per_class_success": {
+      "Turn": "10/10",
+      "Move": "10/10",
+      "Shift": "9/10",
+      "Rotate": "1/10",
+      "Surround": "0/10",
+      "Ascend/Descend": "10/10",
+      "Approach": "9/10",
+      "Retreat": "9/10",
+      "Pass": "4/10",
+      "Land": "5/10"
+    }
+  },
+  "qwen_realsim": {
+    "flights": 100,
+    "success": 0.5,
+    "mean_ndtw": 0.3361,
+    "per_class_success": {
+      "Turn": "4/10",
+      "Move": "7/10",
+      "Shift": "9/10",
+      "Rotate": "3/10",
+      "Surround": "0/10",
+      "Ascend/Descend": "9/10",
+      "Approach": "7/10",
+      "Retreat": "10/10",
+      "Pass": "0/10",
+      "Land": "1/10"
+    }
+  }
+}

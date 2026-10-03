@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pdf
+*.safetensors
+*.pt
+*.tar
+*.tgz
+*.zip
+runs/
+wandb/
+.env

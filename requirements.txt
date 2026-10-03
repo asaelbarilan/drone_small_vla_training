@@ -1,0 +1,13 @@
+# Training / server (tested: torch 2.13, transformers 5.17, peft 0.21, Python 3.12-3.14)
+torch>=2.6
+transformers>=5.0
+peft>=0.21
+accelerate
+bitsandbytes  # only for the NF4 path
+pillow
+numpy
+pyarrow       # reading UAV-Flow parquet shards
+flask         # eval server
+matplotlib    # release figures
+wandb         # optional logging
+# Evaluation needs UAV-Flow-Eval (UnrealZoo) installed separately on Windows.

@@ -1,0 +1,39 @@
+{
+  "source_shard": "D:/drone_vla_pilot/data/uav_flow_20260921/train-00000-of-00054.parquet",
+  "episodes": 500,
+  "dropped_episodes": 0,
+  "steps": 34018,
+  "train_steps": 28304,
+  "val_steps": 5714,
+  "val_episodes": 88,
+  "steps_sha256": "c82cf100c5a6ef231538a81c64a73cacd9bf02b995a81a6e2d409da2a905f153",
+  "episodes_sha256": "bf3023201e5680f184a6ba9751d7b7175488547c31af5eae0b526425de5efea1",
+  "val_fraction": 0.2,
+  "thumbnail_px": 256,
+  "jpeg_quality": 92,
+  "task": "current frame + instruction -> next 6-DoF step in the episode start frame",
+  "rollout": "sum of predicted steps from frame 0; endpoint compared to the recorded endpoint",
+  "step_magnitude": {
+    "median_abs": [
+      0.0922,
+      0.0248,
+      0.003,
+      0.2707,
+      0.1,
+      0.2151
+    ],
+    "p99_abs": [
+      0.59,
+      0.2852,
+      0.0994,
+      4.8106,
+      9.4229,
+      5.5201
+    ]
+  },
+  "d153_baselines_metres": {
+    "no_text": 5.786,
+    "text_only": 2.264,
+    "median_trajectory": 7.342
+  }
+}

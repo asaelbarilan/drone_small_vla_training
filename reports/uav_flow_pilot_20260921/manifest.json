@@ -1,0 +1,24 @@
+{
+  "source_shard": "D:/drone_vla_pilot/data/uav_flow_20260921/train-00000-of-00054.parquet",
+  "source_sha256_prefix": "fc16b706b914356cd9e06c42375fa2eb6d80babb73c5923c9e22acdaf88109da",
+  "episodes": 500,
+  "index_sha256": "d28911aa464f53c82872b360df8de648ea1baaca211fc755691ec31d56f87595",
+  "val_fraction": 0.2,
+  "thumbnail_px": 256,
+  "task": "first frame + instruction -> final displacement (x, y, z) in metres, start frame",
+  "baseline": {
+    "train_episodes": 412,
+    "val_episodes": 88,
+    "val_with_instruction_seen_in_train": 76,
+    "median_trajectory_m": 7.342,
+    "global_no_text": {
+      "median_final_error_m": 5.786,
+      "mean_final_error_m": 6.097
+    },
+    "text_only": {
+      "median_final_error_m": 2.264,
+      "mean_final_error_m": 3.624
+    },
+    "target_to_beat_m": 2.264
+  }
+}

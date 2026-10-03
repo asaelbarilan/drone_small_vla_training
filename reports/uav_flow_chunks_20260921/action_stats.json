@@ -1,0 +1,60 @@
+{
+  "split_unseen": {
+    "split": "split_unseen",
+    "steps": 164696,
+    "q01": [
+      -0.243,
+      -0.218,
+      -0.09,
+      -2.953,
+      -6.073,
+      -2.73
+    ],
+    "q99": [
+      0.465,
+      0.225,
+      0.085,
+      3.05,
+      6.125,
+      3.512
+    ],
+    "median": [
+      0.083,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "note": "per-channel q01/q99 over training chunks; the unnorm_key equivalent"
+  },
+  "split_seen": {
+    "split": "split_seen",
+    "steps": 214896,
+    "q01": [
+      -0.259,
+      -0.238,
+      -0.094,
+      -3.354,
+      -8.168,
+      -3.292
+    ],
+    "q99": [
+      0.577,
+      0.241,
+      0.086,
+      3.398,
+      5.851,
+      4.287
+    ],
+    "median": [
+      0.083,
+      0.001,
+      -0.001,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "note": "per-channel q01/q99 over training chunks; the unnorm_key equivalent"
+  }
+}

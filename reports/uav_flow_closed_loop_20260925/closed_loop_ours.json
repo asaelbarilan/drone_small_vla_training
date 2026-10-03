@@ -1,0 +1,963 @@
+{
+  "summary": {
+    "flights": "D:\\drone_vla_pilot\\runs\\sim_eval_win\\qwen\\flights",
+    "flown": 100,
+    "mean_ndtw": 0.1285,
+    "median_end_distance_m": 2.623,
+    "per_class": {
+      "Turn": {
+        "tasks": 15,
+        "flown": 10,
+        "mean_ndtw": 0.1538
+      },
+      "Move": {
+        "tasks": 15,
+        "flown": 10,
+        "mean_ndtw": 0.0444
+      },
+      "Shift": {
+        "tasks": 49,
+        "flown": 10,
+        "mean_ndtw": 0.1061
+      },
+      "Rotate": {
+        "tasks": 15,
+        "flown": 10,
+        "mean_ndtw": 0.1104
+      },
+      "Surround": {
+        "tasks": 12,
+        "flown": 10,
+        "mean_ndtw": 0.001
+      },
+      "Ascend/Descend": {
+        "tasks": 19,
+        "flown": 10,
+        "mean_ndtw": 0.0566
+      },
+      "Approach": {
+        "tasks": 42,
+        "flown": 10,
+        "mean_ndtw": 0.3195
+      },
+      "Retreat": {
+        "tasks": 12,
+        "flown": 10,
+        "mean_ndtw": 0.3548
+      },
+      "Pass": {
+        "tasks": 40,
+        "flown": 10,
+        "mean_ndtw": 0.1343
+      },
+      "Land": {
+        "tasks": 54,
+        "flown": 10,
+        "mean_ndtw": 0.0038
+      }
+    },
+    "note": "nDTW via the official metric.py functions; success rate needs human judgement"
+  },
+  "flights": [
+    {
+      "file": "2025-03-30_11-49-14.json",
+      "cls": "Turn",
+      "instruction": "Turn to the direction of the person.",
+      "ndtw": 0.0227,
+      "steps": 26,
+      "end_distance_m": 0.866,
+      "final_yaw_error_deg": 25.6
+    },
+    {
+      "file": "2025-03-30_11-49-27.json",
+      "cls": "Turn",
+      "instruction": "Face toward the person.",
+      "ndtw": 0.3581,
+      "steps": 18,
+      "end_distance_m": 0.295,
+      "final_yaw_error_deg": 10.2
+    },
+    {
+      "file": "2025-03-30_11-52-45.json",
+      "cls": "Turn",
+      "instruction": "Face towards the person.",
+      "ndtw": 0.2626,
+      "steps": 18,
+      "end_distance_m": 0.303,
+      "final_yaw_error_deg": 6.5
+    },
+    {
+      "file": "2025-03-30_12-00-24.json",
+      "cls": "Turn",
+      "instruction": "Face toward the dog.",
+      "ndtw": 0.0894,
+      "steps": 18,
+      "end_distance_m": 0.243,
+      "final_yaw_error_deg": 14.2
+    },
+    {
+      "file": "2025-03-30_12-02-40.json",
+      "cls": "Turn",
+      "instruction": "Face toward the person.",
+      "ndtw": 0.1135,
+      "steps": 18,
+      "end_distance_m": 0.295,
+      "final_yaw_error_deg": 17.4
+    },
+    {
+      "file": "2025-03-30_12-05-38.json",
+      "cls": "Turn",
+      "instruction": "Turn to the direction of the dog.",
+      "ndtw": 0.2976,
+      "steps": 11,
+      "end_distance_m": 0.024,
+      "final_yaw_error_deg": 5.5
+    },
+    {
+      "file": "2025-03-30_12-16-24.json",
+      "cls": "Turn",
+      "instruction": "Face toward the dog.",
+      "ndtw": 0.0663,
+      "steps": 18,
+      "end_distance_m": 0.243,
+      "final_yaw_error_deg": 25.8
+    },
+    {
+      "file": "2025-03-30_12-17-43.json",
+      "cls": "Turn",
+      "instruction": "Face the person's direction.",
+      "ndtw": 0.0268,
+      "steps": 11,
+      "end_distance_m": 0.09,
+      "final_yaw_error_deg": 28.3
+    },
+    {
+      "file": "2025-03-30_12-28-43.json",
+      "cls": "Turn",
+      "instruction": "Turn to the direction of the person.",
+      "ndtw": 0.1767,
+      "steps": 26,
+      "end_distance_m": 0.898,
+      "final_yaw_error_deg": 7.2
+    },
+    {
+      "file": "2025-03-30_12-31-20.json",
+      "cls": "Turn",
+      "instruction": "Face toward the person.",
+      "ndtw": 0.1238,
+      "steps": 18,
+      "end_distance_m": 0.295,
+      "final_yaw_error_deg": 18.0
+    },
+    {
+      "file": "2025-03-30_11-49-28.json",
+      "cls": "Move",
+      "instruction": "Navigate to a point 3.5 meters away from the individual",
+      "ndtw": 0.0,
+      "steps": 42,
+      "end_distance_m": 4.954,
+      "final_yaw_error_deg": 1.7
+    },
+    {
+      "file": "2025-03-30_11-51-47.json",
+      "cls": "Move",
+      "instruction": "Navigate to a point 4.5 meters away from the individual",
+      "ndtw": 0.0,
+      "steps": 42,
+      "end_distance_m": 2.901,
+      "final_yaw_error_deg": 1.7
+    },
+    {
+      "file": "2025-03-30_11-52-35.json",
+      "cls": "Move",
+      "instruction": "Navigate to a point 5.0 meters away from the individual",
+      "ndtw": 0.0,
+      "steps": 42,
+      "end_distance_m": 3.635,
+      "final_yaw_error_deg": 1.7
+    },
+    {
+      "file": "2025-03-30_11-55-05.json",
+      "cls": "Move",
+      "instruction": "Navigate to a point 2.5 meters away from the dog",
+      "ndtw": 0.4356,
+      "steps": 26,
+      "end_distance_m": 0.113,
+      "final_yaw_error_deg": 0.6
+    },
+    {
+      "file": "2025-03-30_11-57-24.json",
+      "cls": "Move",
+      "instruction": "Navigate to a point 3.5 meters away from the individual",
+      "ndtw": 0.0063,
+      "steps": 26,
+      "end_distance_m": 1.034,
+      "final_yaw_error_deg": 0.8
+    },
+    {
+      "file": "2025-03-30_12-06-09.json",
+      "cls": "Move",
+      "instruction": "Navigate to a point 4.5 meters away from the individual.",
+      "ndtw": 0.0,
+      "steps": 42,
+      "end_distance_m": 5.842,
+      "final_yaw_error_deg": 1.7
+    },
+    {
+      "file": "2025-03-30_12-16-42.json",
+      "cls": "Move",
+      "instruction": "Navigate to a point 2.0 meters away from the dog",
+      "ndtw": 0.0,
+      "steps": 26,
+      "end_distance_m": 1.852,
+      "final_yaw_error_deg": 0.8
+    },
+    {
+      "file": "2025-03-30_12-20-01.json",
+      "cls": "Move",
+      "instruction": "Move to a position 2.0 meters from the dog",
+      "ndtw": 0.0017,
+      "steps": 11,
+      "end_distance_m": 2.431,
+      "final_yaw_error_deg": 0.6
+    },
+    {
+      "file": "2025-03-30_12-21-07.json",
+      "cls": "Move",
+      "instruction": "Move to a position 2.0 meters from the dog",
+      "ndtw": 0.0001,
+      "steps": 11,
+      "end_distance_m": 3.322,
+      "final_yaw_error_deg": 0.6
+    },
+    {
+      "file": "2025-03-30_12-22-33.json",
+      "cls": "Move",
+      "instruction": "Navigate to a point 4.5 meters away from the individual",
+      "ndtw": 0.0,
+      "steps": 42,
+      "end_distance_m": 5.713,
+      "final_yaw_error_deg": 1.7
+    },
+    {
+      "file": "2025-03-30_11-49-38.json",
+      "cls": "Shift",
+      "instruction": "Move 9.0 meters to the left at a 35-degree angle",
+      "ndtw": 0.007,
+      "steps": 11,
+      "end_distance_m": 8.981,
+      "final_yaw_error_deg": 0.6
+    },
+    {
+      "file": "2025-03-30_11-52-55.json",
+      "cls": "Shift",
+      "instruction": "Move 5.0 meters to the left at a 50-degree angle",
+      "ndtw": 0.1006,
+      "steps": 26,
+      "end_distance_m": 4.04,
+      "final_yaw_error_deg": 2.5
+    },
+    {
+      "file": "2025-03-30_11-53-06.json",
+      "cls": "Shift",
+      "instruction": "Move 1.0 meters to the right at a 55-degree angle",
+      "ndtw": 0.2782,
+      "steps": 18,
+      "end_distance_m": 0.751,
+      "final_yaw_error_deg": 2.3
+    },
+    {
+      "file": "2025-03-30_11-55-31.json",
+      "cls": "Shift",
+      "instruction": "Move 5.0 meters to the right at a 50-degree angle",
+      "ndtw": 0.0657,
+      "steps": 18,
+      "end_distance_m": 4.689,
+      "final_yaw_error_deg": 2.3
+    },
+    {
+      "file": "2025-03-30_11-55-57.json",
+      "cls": "Shift",
+      "instruction": "Move 8.0 meters at 90 degrees to the right",
+      "ndtw": 0.0111,
+      "steps": 11,
+      "end_distance_m": 7.999,
+      "final_yaw_error_deg": 0.8
+    },
+    {
+      "file": "2025-03-30_11-56-55.json",
+      "cls": "Shift",
+      "instruction": "Move 2.0 meters at 20 degrees to the right",
+      "ndtw": 0.2205,
+      "steps": 18,
+      "end_distance_m": 1.872,
+      "final_yaw_error_deg": 2.3
+    },
+    {
+      "file": "2025-03-30_11-57-44.json",
+      "cls": "Shift",
+      "instruction": "Move 3.0 meters to the left at a 70-degree angle",
+      "ndtw": 0.2746,
+      "steps": 26,
+      "end_distance_m": 1.804,
+      "final_yaw_error_deg": 2.5
+    },
+    {
+      "file": "2025-03-30_12-00-45.json",
+      "cls": "Shift",
+      "instruction": "Move 7.0 meters to the left at a 90-degree angle",
+      "ndtw": 0.0591,
+      "steps": 26,
+      "end_distance_m": 5.708,
+      "final_yaw_error_deg": 9.1
+    },
+    {
+      "file": "2025-03-30_12-01-52.json",
+      "cls": "Shift",
+      "instruction": "Move forward 1.0 meters",
+      "ndtw": 0.0031,
+      "steps": 26,
+      "end_distance_m": 1.625,
+      "final_yaw_error_deg": 3.1
+    },
+    {
+      "file": "2025-03-30_12-02-16.json",
+      "cls": "Shift",
+      "instruction": "Move 6.0 meters to the right at a 60-degree angle",
+      "ndtw": 0.041,
+      "steps": 18,
+      "end_distance_m": 5.667,
+      "final_yaw_error_deg": 2.3
+    },
+    {
+      "file": "2025-03-30_11-52-11.json",
+      "cls": "Rotate",
+      "instruction": "Rotate 105 degrees to the right",
+      "ndtw": 0.0432,
+      "steps": 18,
+      "end_distance_m": 0.501,
+      "final_yaw_error_deg": 107.3
+    },
+    {
+      "file": "2025-03-30_11-57-38.json",
+      "cls": "Rotate",
+      "instruction": "Turn right by 150 degrees",
+      "ndtw": 0.0079,
+      "steps": 11,
+      "end_distance_m": 0.088,
+      "final_yaw_error_deg": 151.9
+    },
+    {
+      "file": "2025-03-30_12-02-10.json",
+      "cls": "Rotate",
+      "instruction": "Turn right by 30 degrees",
+      "ndtw": 0.2875,
+      "steps": 18,
+      "end_distance_m": 0.363,
+      "final_yaw_error_deg": 32.3
+    },
+    {
+      "file": "2025-03-30_12-02-50.json",
+      "cls": "Rotate",
+      "instruction": "Turn clockwise by 90 degrees",
+      "ndtw": 0.0697,
+      "steps": 18,
+      "end_distance_m": 0.266,
+      "final_yaw_error_deg": 83.6
+    },
+    {
+      "file": "2025-03-30_12-06-24.json",
+      "cls": "Rotate",
+      "instruction": "Turn left by 105 degrees",
+      "ndtw": 0.0432,
+      "steps": 18,
+      "end_distance_m": 0.349,
+      "final_yaw_error_deg": 102.7
+    },
+    {
+      "file": "2025-03-30_12-08-01.json",
+      "cls": "Rotate",
+      "instruction": "Turn counterclockwise by 165 degrees",
+      "ndtw": 0.0037,
+      "steps": 18,
+      "end_distance_m": 0.363,
+      "final_yaw_error_deg": 162.7
+    },
+    {
+      "file": "2025-03-30_12-12-07.json",
+      "cls": "Rotate",
+      "instruction": "Turn right by 15 degrees",
+      "ndtw": 0.3668,
+      "steps": 18,
+      "end_distance_m": 0.297,
+      "final_yaw_error_deg": 17.3
+    },
+    {
+      "file": "2025-03-30_12-21-53.json",
+      "cls": "Rotate",
+      "instruction": "Turn 165 degrees counterclockwise",
+      "ndtw": 0.0037,
+      "steps": 11,
+      "end_distance_m": 0.088,
+      "final_yaw_error_deg": 163.1
+    },
+    {
+      "file": "2025-03-30_12-30-59.json",
+      "cls": "Rotate",
+      "instruction": "Turn right by 45 degrees",
+      "ndtw": 0.2085,
+      "steps": 18,
+      "end_distance_m": 0.3,
+      "final_yaw_error_deg": 47.3
+    },
+    {
+      "file": "2025-03-30_12-37-20.json",
+      "cls": "Rotate",
+      "instruction": "Turn clockwise by 90 degrees",
+      "ndtw": 0.0697,
+      "steps": 18,
+      "end_distance_m": 0.266,
+      "final_yaw_error_deg": 83.6
+    },
+    {
+      "file": "2025-03-30_11-50-40.json",
+      "cls": "Surround",
+      "instruction": "Orbit the person at a 3.0-meter radius clockwise.",
+      "ndtw": 0.0003,
+      "steps": 11,
+      "end_distance_m": 0.238,
+      "final_yaw_error_deg": 0.9
+    },
+    {
+      "file": "2025-03-30_11-57-32.json",
+      "cls": "Surround",
+      "instruction": "Circle around person with a radius of 2.0 meters in the right direction.",
+      "ndtw": 0.0024,
+      "steps": 11,
+      "end_distance_m": 0.05,
+      "final_yaw_error_deg": 1.9
+    },
+    {
+      "file": "2025-03-30_12-04-19.json",
+      "cls": "Surround",
+      "instruction": "Circle around person with a radius of 4.0 meters in the right direction.",
+      "ndtw": 0.0002,
+      "steps": 11,
+      "end_distance_m": 0.104,
+      "final_yaw_error_deg": 0.5
+    },
+    {
+      "file": "2025-03-30_12-18-29.json",
+      "cls": "Surround",
+      "instruction": "Orbit the dog clockwise at a 4.5-meter radius.",
+      "ndtw": 0.0001,
+      "steps": 11,
+      "end_distance_m": 0.343,
+      "final_yaw_error_deg": 6.3
+    },
+    {
+      "file": "2025-03-30_12-20-43.json",
+      "cls": "Surround",
+      "instruction": "Orbit the dog to the left with a 5.0-meter radius.",
+      "ndtw": 0.0005,
+      "steps": 26,
+      "end_distance_m": 2.623,
+      "final_yaw_error_deg": 5.6
+    },
+    {
+      "file": "2025-03-30_12-24-51.json",
+      "cls": "Surround",
+      "instruction": "Orbit the dog to the left with a 3.5-meter radius.",
+      "ndtw": 0.0018,
+      "steps": 26,
+      "end_distance_m": 2.623,
+      "final_yaw_error_deg": 5.1
+    },
+    {
+      "file": "2025-03-30_12-28-52.json",
+      "cls": "Surround",
+      "instruction": "Orbit the dog clockwise at a 6.0-meter radius.",
+      "ndtw": 0.0001,
+      "steps": 11,
+      "end_distance_m": 0.104,
+      "final_yaw_error_deg": 0.2
+    },
+    {
+      "file": "2025-03-30_12-36-12.json",
+      "cls": "Surround",
+      "instruction": "Orbit the person clockwise at a 2.5-meter radius.",
+      "ndtw": 0.0006,
+      "steps": 11,
+      "end_distance_m": 0.28,
+      "final_yaw_error_deg": 2.5
+    },
+    {
+      "file": "2025-03-30_12-38-32.json",
+      "cls": "Surround",
+      "instruction": "Orbit the person to the right at a 3.0-meter radius.",
+      "ndtw": 0.0034,
+      "steps": 26,
+      "end_distance_m": 2.619,
+      "final_yaw_error_deg": 0.6
+    },
+    {
+      "file": "2025-03-30_12-44-03.json",
+      "cls": "Surround",
+      "instruction": "Orbit the person to the right at a 5.0-meter radius.",
+      "ndtw": 0.0004,
+      "steps": 26,
+      "end_distance_m": 2.622,
+      "final_yaw_error_deg": 1.3
+    },
+    {
+      "file": "2025-03-30_11-51-33.json",
+      "cls": "Ascend/Descend",
+      "instruction": "Lower altitude by 9.0 meters with a 15-degree descent angle",
+      "ndtw": 0.0069,
+      "steps": 11,
+      "end_distance_m": 8.97,
+      "final_yaw_error_deg": 0.6
+    },
+    {
+      "file": "2025-03-30_12-12-19.json",
+      "cls": "Ascend/Descend",
+      "instruction": "Descend 9.0 meters at 30 degrees",
+      "ndtw": 0.0069,
+      "steps": 11,
+      "end_distance_m": 8.971,
+      "final_yaw_error_deg": 0.6
+    },
+    {
+      "file": "2025-03-30_12-12-25.json",
+      "cls": "Ascend/Descend",
+      "instruction": "Descend 4.0 meters",
+      "ndtw": 0.0348,
+      "steps": 26,
+      "end_distance_m": 4.522,
+      "final_yaw_error_deg": 1.0
+    },
+    {
+      "file": "2025-03-30_12-20-31.json",
+      "cls": "Ascend/Descend",
+      "instruction": "Move downward 1.0 meters at a 55-degree angle",
+      "ndtw": 0.3688,
+      "steps": 11,
+      "end_distance_m": 0.978,
+      "final_yaw_error_deg": 1.0
+    },
+    {
+      "file": "2025-03-30_12-22-03.json",
+      "cls": "Ascend/Descend",
+      "instruction": "Descend 3.0 meters with a 60-degree angle",
+      "ndtw": 0.05,
+      "steps": 26,
+      "end_distance_m": 2.741,
+      "final_yaw_error_deg": 2.8
+    },
+    {
+      "file": "2025-03-30_11-49-35.json",
+      "cls": "Ascend/Descend",
+      "instruction": "Climb to an altitude of 8.0 meters with an 85-degree ascent angle",
+      "ndtw": 0.0111,
+      "steps": 11,
+      "end_distance_m": 8.003,
+      "final_yaw_error_deg": 0.8
+    },
+    {
+      "file": "2025-03-30_11-52-19.json",
+      "cls": "Ascend/Descend",
+      "instruction": "Ascend 5.0 meters at 65 degrees",
+      "ndtw": 0.0511,
+      "steps": 26,
+      "end_distance_m": 4.661,
+      "final_yaw_error_deg": 3.0
+    },
+    {
+      "file": "2025-03-30_11-58-25.json",
+      "cls": "Ascend/Descend",
+      "instruction": "Ascend to an altitude of 6.0 meters",
+      "ndtw": 0.0189,
+      "steps": 26,
+      "end_distance_m": 6.635,
+      "final_yaw_error_deg": 2.8
+    },
+    {
+      "file": "2025-03-30_12-04-05.json",
+      "cls": "Ascend/Descend",
+      "instruction": "Ascend to an altitude of 8.0 meters",
+      "ndtw": 0.0111,
+      "steps": 11,
+      "end_distance_m": 8.006,
+      "final_yaw_error_deg": 0.6
+    },
+    {
+      "file": "2025-03-30_12-27-56.json",
+      "cls": "Ascend/Descend",
+      "instruction": "Climb to an altitude of 9.0 meters with a 75-degree ascent angle",
+      "ndtw": 0.0067,
+      "steps": 11,
+      "end_distance_m": 8.998,
+      "final_yaw_error_deg": 0.6
+    },
+    {
+      "file": "2025-05-06_19-14-24.json",
+      "cls": "Approach",
+      "instruction": "Approach the sunshade from the front side",
+      "ndtw": 0.2868,
+      "steps": 26,
+      "end_distance_m": 3.458,
+      "final_yaw_error_deg": 1.5
+    },
+    {
+      "file": "2025-05-06_19-14-35.json",
+      "cls": "Approach",
+      "instruction": "Approach the front sun umbrella from the front side",
+      "ndtw": 0.1347,
+      "steps": 26,
+      "end_distance_m": 3.827,
+      "final_yaw_error_deg": 1.5
+    },
+    {
+      "file": "2025-05-06_19-14-48.json",
+      "cls": "Approach",
+      "instruction": "Proceed toward the trees on the front side",
+      "ndtw": 0.0956,
+      "steps": 26,
+      "end_distance_m": 6.544,
+      "final_yaw_error_deg": 1.5
+    },
+    {
+      "file": "2025-05-06_19-15-01.json",
+      "cls": "Approach",
+      "instruction": "Approach the trees ahead from the front side",
+      "ndtw": 0.6195,
+      "steps": 34,
+      "end_distance_m": 0.446,
+      "final_yaw_error_deg": 1.9
+    },
+    {
+      "file": "2025-05-06_19-15-24.json",
+      "cls": "Approach",
+      "instruction": "Advance toward the front vehicle from the front side",
+      "ndtw": 0.2586,
+      "steps": 26,
+      "end_distance_m": 3.195,
+      "final_yaw_error_deg": 1.5
+    },
+    {
+      "file": "2025-05-06_19-15-42.json",
+      "cls": "Approach",
+      "instruction": "Advance toward the front vehicle",
+      "ndtw": 0.0803,
+      "steps": 26,
+      "end_distance_m": 3.93,
+      "final_yaw_error_deg": 1.5
+    },
+    {
+      "file": "2025-05-06_19-16-06.json",
+      "cls": "Approach",
+      "instruction": "Please go to the person on the front side",
+      "ndtw": 0.2044,
+      "steps": 26,
+      "end_distance_m": 3.129,
+      "final_yaw_error_deg": 1.5
+    },
+    {
+      "file": "2025-05-06_19-16-25.json",
+      "cls": "Approach",
+      "instruction": "Please progress toward the dog ahead",
+      "ndtw": 0.7612,
+      "steps": 26,
+      "end_distance_m": 0.096,
+      "final_yaw_error_deg": 1.5
+    },
+    {
+      "file": "2025-05-06_19-16-46.json",
+      "cls": "Approach",
+      "instruction": "Get closer to the sculpture ahead",
+      "ndtw": 0.5146,
+      "steps": 26,
+      "end_distance_m": 2.065,
+      "final_yaw_error_deg": 3.3
+    },
+    {
+      "file": "2025-05-06_19-17-27.json",
+      "cls": "Approach",
+      "instruction": "Please proceed toward the sculpture on the front side",
+      "ndtw": 0.2394,
+      "steps": 26,
+      "end_distance_m": 2.677,
+      "final_yaw_error_deg": 2.8
+    },
+    {
+      "file": "2025-05-06_22-23-37.json",
+      "cls": "Retreat",
+      "instruction": "Move away from the sunshade ahead",
+      "ndtw": 0.3447,
+      "steps": 42,
+      "end_distance_m": 1.809,
+      "final_yaw_error_deg": 2.4
+    },
+    {
+      "file": "2025-05-06_22-24-00.json",
+      "cls": "Retreat",
+      "instruction": "Move back from the sunshade ahead",
+      "ndtw": 0.4185,
+      "steps": 42,
+      "end_distance_m": 1.037,
+      "final_yaw_error_deg": 2.4
+    },
+    {
+      "file": "2025-05-06_22-24-11.json",
+      "cls": "Retreat",
+      "instruction": "Move away from the trees on the front side",
+      "ndtw": 0.1649,
+      "steps": 42,
+      "end_distance_m": 1.968,
+      "final_yaw_error_deg": 6.3
+    },
+    {
+      "file": "2025-05-06_22-24-26.json",
+      "cls": "Retreat",
+      "instruction": "Please retreat from the trees ahead",
+      "ndtw": 0.1507,
+      "steps": 34,
+      "end_distance_m": 2.481,
+      "final_yaw_error_deg": 4.6
+    },
+    {
+      "file": "2025-05-06_22-25-29.json",
+      "cls": "Retreat",
+      "instruction": "Pull back from the vehicle ahead",
+      "ndtw": 0.5209,
+      "steps": 42,
+      "end_distance_m": 0.204,
+      "final_yaw_error_deg": 3.4
+    },
+    {
+      "file": "2025-05-06_22-25-51.json",
+      "cls": "Retreat",
+      "instruction": "Withdraw from the person ahead",
+      "ndtw": 0.5493,
+      "steps": 42,
+      "end_distance_m": 0.231,
+      "final_yaw_error_deg": 4.0
+    },
+    {
+      "file": "2025-05-06_22-26-02.json",
+      "cls": "Retreat",
+      "instruction": "Back off from the dog ahead",
+      "ndtw": 0.4543,
+      "steps": 42,
+      "end_distance_m": 1.146,
+      "final_yaw_error_deg": 3.2
+    },
+    {
+      "file": "2025-05-06_22-26-30.json",
+      "cls": "Retreat",
+      "instruction": "Move back from the sculpture on the front side",
+      "ndtw": 0.1947,
+      "steps": 34,
+      "end_distance_m": 2.947,
+      "final_yaw_error_deg": 4.6
+    },
+    {
+      "file": "2025-05-06_22-26-46.json",
+      "cls": "Retreat",
+      "instruction": "Back up from the streetlight ahead",
+      "ndtw": 0.3611,
+      "steps": 42,
+      "end_distance_m": 2.38,
+      "final_yaw_error_deg": 3.4
+    },
+    {
+      "file": "2025-05-06_22-26-59.json",
+      "cls": "Retreat",
+      "instruction": "Back up from the streetlight ahead",
+      "ndtw": 0.3885,
+      "steps": 42,
+      "end_distance_m": 0.477,
+      "final_yaw_error_deg": 4.7
+    },
+    {
+      "file": "2025-05-06_22-56-36.json",
+      "cls": "Pass",
+      "instruction": "Need to make way past the sun umbrella from the right side",
+      "ndtw": 0.2046,
+      "steps": 50,
+      "end_distance_m": 4.096,
+      "final_yaw_error_deg": 4.1
+    },
+    {
+      "file": "2025-05-06_22-56-53.json",
+      "cls": "Pass",
+      "instruction": "Please navigate through the sun umbrella from the left side",
+      "ndtw": 0.0746,
+      "steps": 66,
+      "end_distance_m": 9.688,
+      "final_yaw_error_deg": 4.4
+    },
+    {
+      "file": "2025-05-06_22-57-10.json",
+      "cls": "Pass",
+      "instruction": "Suggest moving past the trees from the left side",
+      "ndtw": 0.1446,
+      "steps": 58,
+      "end_distance_m": 7.316,
+      "final_yaw_error_deg": 2.1
+    },
+    {
+      "file": "2025-05-06_22-57-26.json",
+      "cls": "Pass",
+      "instruction": "Suggest progressing through the trees from the right side",
+      "ndtw": 0.1942,
+      "steps": 58,
+      "end_distance_m": 4.651,
+      "final_yaw_error_deg": 5.9
+    },
+    {
+      "file": "2025-05-06_22-57-54.json",
+      "cls": "Pass",
+      "instruction": "Suggest crossing through the car from the left side",
+      "ndtw": 0.0216,
+      "steps": 42,
+      "end_distance_m": 15.54,
+      "final_yaw_error_deg": 3.0
+    },
+    {
+      "file": "2025-05-06_22-58-09.json",
+      "cls": "Pass",
+      "instruction": "Request to advance past the car from the right side",
+      "ndtw": 0.0533,
+      "steps": 50,
+      "end_distance_m": 14.031,
+      "final_yaw_error_deg": 4.1
+    },
+    {
+      "file": "2025-05-06_22-58-26.json",
+      "cls": "Pass",
+      "instruction": "Proceed through the person from the left side",
+      "ndtw": 0.1979,
+      "steps": 50,
+      "end_distance_m": 5.998,
+      "final_yaw_error_deg": 3.8
+    },
+    {
+      "file": "2025-05-06_22-58-59.json",
+      "cls": "Pass",
+      "instruction": "Please navigate through the dog from the right side",
+      "ndtw": 0.2358,
+      "steps": 58,
+      "end_distance_m": 6.151,
+      "final_yaw_error_deg": 5.2
+    },
+    {
+      "file": "2025-05-06_22-59-17.json",
+      "cls": "Pass",
+      "instruction": "Advance past the sculpture from the left side",
+      "ndtw": 0.0246,
+      "steps": 26,
+      "end_distance_m": 15.373,
+      "final_yaw_error_deg": 3.1
+    },
+    {
+      "file": "2025-05-06_22-59-38.json",
+      "cls": "Pass",
+      "instruction": "Request to advance past the streetlight from the left side",
+      "ndtw": 0.1919,
+      "steps": 42,
+      "end_distance_m": 6.278,
+      "final_yaw_error_deg": 4.8
+    },
+    {
+      "file": "2025-05-06_23-20-35.json",
+      "cls": "Land",
+      "instruction": "Land on the front side of the sun umbrella",
+      "ndtw": 0.0084,
+      "steps": 11,
+      "end_distance_m": 8.486,
+      "final_yaw_error_deg": 1.1
+    },
+    {
+      "file": "2025-05-06_23-21-10.json",
+      "cls": "Land",
+      "instruction": "Please land at the left side of the sunshade",
+      "ndtw": 0.0004,
+      "steps": 34,
+      "end_distance_m": 10.068,
+      "final_yaw_error_deg": 3.5
+    },
+    {
+      "file": "2025-05-06_23-21-33.json",
+      "cls": "Land",
+      "instruction": "Land on the right side of the sunshade",
+      "ndtw": 0.0006,
+      "steps": 42,
+      "end_distance_m": 9.607,
+      "final_yaw_error_deg": 3.7
+    },
+    {
+      "file": "2025-05-06_23-22-26.json",
+      "cls": "Land",
+      "instruction": "Land on the front side of the trees",
+      "ndtw": 0.0005,
+      "steps": 26,
+      "end_distance_m": 7.487,
+      "final_yaw_error_deg": 2.1
+    },
+    {
+      "file": "2025-05-06_23-22-47.json",
+      "cls": "Land",
+      "instruction": "Request to land to the left side of the tree",
+      "ndtw": 0.001,
+      "steps": 11,
+      "end_distance_m": 11.953,
+      "final_yaw_error_deg": 0.6
+    },
+    {
+      "file": "2025-05-06_23-23-01.json",
+      "cls": "Land",
+      "instruction": "Suggest landing on the right side of the tree",
+      "ndtw": 0.0036,
+      "steps": 42,
+      "end_distance_m": 9.66,
+      "final_yaw_error_deg": 4.7
+    },
+    {
+      "file": "2025-05-06_23-23-48.json",
+      "cls": "Land",
+      "instruction": "Land to the left side of the car",
+      "ndtw": 0.0047,
+      "steps": 42,
+      "end_distance_m": 6.002,
+      "final_yaw_error_deg": 3.0
+    },
+    {
+      "file": "2025-05-06_23-24-08.json",
+      "cls": "Land",
+      "instruction": "Land to the right side of the car",
+      "ndtw": 0.0008,
+      "steps": 42,
+      "end_distance_m": 6.549,
+      "final_yaw_error_deg": 4.8
+    },
+    {
+      "file": "2025-05-06_23-24-55.json",
+      "cls": "Land",
+      "instruction": "Please land at the front of the person",
+      "ndtw": 0.0042,
+      "steps": 11,
+      "end_distance_m": 4.206,
+      "final_yaw_error_deg": 2.3
+    },
+    {
+      "file": "2025-05-06_23-25-56.json",
+      "cls": "Land",
+      "instruction": "Need to land toward the left side of the person",
+      "ndtw": 0.0143,
+      "steps": 26,
+      "end_distance_m": 6.539,
+      "final_yaw_error_deg": 2.5
+    }
+  ]
+}
