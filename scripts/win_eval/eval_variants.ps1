@@ -49,7 +49,10 @@ try {
     $port = 5008
     foreach ($v in $Variants.Split(";")) {
         $name, $prefix, $flags = $v.Split("|")
-        $adapter = "C:\adapters\" + ($prefix -replace "[/\\]", "_")
+        # A local folder (e.g. an adapter just trained on this box) is used as is; anything
+        # else is an S3 prefix, downloaded once.
+        if ($prefix -match '^[A-Za-z]:\\') { $adapter = $prefix }
+        else { $adapter = "C:\adapters\" + ($prefix -replace "[/\\]", "_") }
         if (-not (Test-Path "$adapter\adapter_config.json")) {
             Read-S3Object -BucketName $bucket -KeyPrefix $prefix -Folder $adapter -Region us-east-1 | Out-Null
         }
