@@ -26,6 +26,14 @@ s3://<bucket>/release/ (package tar, g5_logs.tgz, lineage/).
       (data prep, the six training phases, evaluation on UAV-Flow-Eval, the inference options)
 - [ ] requirements file (d170/requirements_g5.txt on S3 + the Windows venv list)
 
+## Data sets (rule 1)
+
+| Set | Made from | Used for |
+|---|---|---|
+| **Train** | UAV-Flow real + simulator training flights (and the 200 practice tasks built from them, `scripts/rl/build_rl_tasks.py`) | learning only: supervised training, DAgger, RL |
+| **Validation** | the 504 held-out UAV-Flow-Sim flights (D169, `release/qwen3vl4b_uavflow_vla/sim_val_flights.json`) -> 307 flyable tasks (`build_rl_tasks.py --validation`) | every development decision and error analysis |
+| **Test** | the 273 UAV-Flow-Eval benchmark tasks | untouched; flown once at the end for the paper. 100 of them were used during development before 2026-10-03 (disclosed) |
+
 ## Paper: have
 - [x] Main table (69% / 0.449 vs OpenVLA-UAV 67% / 0.395), per class, task-weighted estimate
 - [x] Ablations: no line / line / line + memory / + deadband; 18,000 vs 31,000

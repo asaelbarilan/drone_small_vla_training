@@ -6,6 +6,14 @@
 > the paper must say so. Decisions from now on use validation tasks built from the 504 held-out
 > UAV-Flow-Sim flights (D169, `release/qwen3vl4b_uavflow_vla/sim_val_flights.json`).
 
+### Data sets
+
+| Set | Made from | Used for |
+|---|---|---|
+| **Train** | UAV-Flow real + simulator training flights (and the 200 practice tasks built from them, `scripts/rl/build_rl_tasks.py`) | learning only: supervised training, DAgger, RL |
+| **Validation** | the 504 held-out UAV-Flow-Sim flights (D169, `release/qwen3vl4b_uavflow_vla/sim_val_flights.json`) -> 307 flyable tasks (`build_rl_tasks.py --validation`) | every development decision and error analysis |
+| **Test** | the 273 UAV-Flow-Eval benchmark tasks | untouched; flown once at the end for the paper. 100 of them were used during development before 2026-10-03 (disclosed) |
+
 
 Goal: beat WorldVLN (79.1% success on UAV-Flow) with a 4B VLA that fits 8 GB.
 Where we are: 50% success on our 100-task test (OpenVLA-UAV 67%). Biggest losses: Land, Pass,

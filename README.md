@@ -21,9 +21,14 @@ Full report: [`reports/uav_flow_closed_loop_20260925/REPORT.md`](reports/uav_flo
 
 ## Evaluation rule
 
-The 273 benchmark test tasks are reserved for the final paper numbers; development decisions use
-validation tasks built from held-out UAV-Flow-Sim flights. The 100-task results above were used
-during development (see docs/LOG.md, D187).
+| Set | Made from | Used for |
+|---|---|---|
+| **Train** | UAV-Flow real + simulator training flights (and the 200 practice tasks built from them, `scripts/rl/build_rl_tasks.py`) | learning only: supervised training, DAgger, RL |
+| **Validation** | the 504 held-out UAV-Flow-Sim flights (D169, `release/qwen3vl4b_uavflow_vla/sim_val_flights.json`) -> 307 flyable tasks (`build_rl_tasks.py --validation`) | every development decision and error analysis |
+| **Test** | the 273 UAV-Flow-Eval benchmark tasks | untouched; flown once at the end for the paper. 100 of them were used during development before 2026-10-03 (disclosed) |
+
+The 100-task results above come from the test set and were used for development decisions
+(see docs/LOG.md, D187); final numbers will come from one run on the test set.
 
 ## Layout
 
