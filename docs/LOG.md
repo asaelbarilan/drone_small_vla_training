@@ -683,3 +683,14 @@ memory + deadband), start adapter = the final model (update 31,000).
 > the paper must say so. Decisions from now on use validation tasks built from the 504 held-out
 > UAV-Flow-Sim flights (D169, `release/qwen3vl4b_uavflow_vla/sim_val_flights.json`).
 
+
+## D188 (2026-10-03 21:00 UTC): DAgger round 1 launched, decided on validation (user-approved, about $6.30)
+Windows box, scripts/win_eval/run_d188.ps1 (7 h timer, machine off at the end):
+1. before - best setup (adapter_s31000 + progress line + goal memory + deadband) on the 73 Land +
+   Pass VALIDATION tasks (d187/val_tasks.zip; measured only) -> S3 d188_before/before.zip
+2. DAgger round 1 - one greedy pass over the 50 Land + Pass practice (TRAIN) tasks, every call
+   relabelled from the recorded flight, 300 updates at lr 2e-5 from adapter_s31000 -> S3
+   d188/dagger_r1_adapter/
+3. after - the DAgger adapter on the same 73 validation tasks -> S3 d188_after/after.zip
+4. PPO check - 4 practice tasks x 2 flights, one PPO update (value-head fix on the GPU)
+The 273 benchmark test tasks are not used (rule 1). Started 20:59 UTC, 73 validation tasks loaded.
