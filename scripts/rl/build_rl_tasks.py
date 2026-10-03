@@ -45,6 +45,12 @@ def main():
     parser.add_argument("--index", type=Path, default=Path("D:/drone_vla_pilot/data/uav_flow_sim_index.json"))
     parser.add_argument("--val", type=Path, default=Path("D:/drone_vla_pilot/data/rl/sim_val_flights.json"))
     parser.add_argument("--per-kind", type=int, default=25)
+    parser.add_argument(
+        "--validation",
+        action="store_true",
+        help="D187: build tasks from the HELD-OUT validation flights only (never trained on) - "
+        "the validation set for decisions; the 273 benchmark test tasks stay untouched",
+    )
     parser.add_argument("--out", type=Path, default=Path("D:/drone_vla_pilot/data/rl/tasks"))
     args = parser.parse_args()
 
@@ -54,7 +60,8 @@ def main():
     by_kind, dropped = {}, dict(validation=0, spawned_object=0, short=0, no_start=0)
     for episode, flight in sorted(paths.items()):
         source = episode.removeprefix("sim_")
-        if episode in val or flight["split"] != "train":
+        held_out = episode in val
+        if (held_out != args.validation) or flight["split"] != "train":
             dropped["validation"] += 1
         elif SPAWNED.search(flight["instruction"]) or SPAWNED.search(flight["instruction_unified"]):
             dropped["spawned_object"] += 1
