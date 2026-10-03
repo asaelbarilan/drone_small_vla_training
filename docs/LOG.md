@@ -659,3 +659,17 @@ rl_loop.ps1 -Method grpo|ppo|dagger, -Kinds "Land,Pass".
   clipped policy loss + 0.5 x value MSE in one backward; value_head.pt carried across rounds;
   all calls kept (no zero-spread filter). GAE checked on the trial data (advantages fall from
   about 2.3 to 0.2 along a flight). The GPU parts are untested until a Windows round.
+
+
+## D185 check (2026-10-03): DAgger and PPO run end to end on the simulator box (about $0.60)
+One tiny round each on 4 Land/Pass practice tasks, best server setup (progress line + goal
+memory + deadband), start adapter = the final model (update 31,000).
+- DAgger: greedy pass, every photo saved; 4 flights -> 32 relabelled rows; 20 updates (loss
+  0.72 -> 0.57); adapter saved and uploaded; box continued to the PPO check.
+- PPO (temperature 1.3, 2 passes): 8 flights, all 4 tasks with reward spread (at 1.0 the GRPO
+  trial had half its groups flat); 71 samples; old log-probs match the rollout (max 0.08);
+  GAE advantages computed; expert anchor 138 examples; 2 updates; adapter + value_head.pt saved;
+  next tasks selected; box shut itself down.
+- Bug found and fixed: value loss 3.5 -> 211 after one update - the head reads raw last-layer
+  hidden states (large values), so one Adam step moved V wildly. The head now reads
+  layer-normalised hidden states.

@@ -161,7 +161,10 @@ def main():
             scaled = positions.float() / temperature
             out.append(scaled.log_softmax(-1).gather(1, (answer - low)[:, None])[:, 0])
             if with_values:
-                values.append(value_head(output.hidden_states[-1][row, prompt_length - 1].float())[0])
+                # D185 check: raw hidden states are large, so one Adam step on the zero-
+                # initialised head moved V wildly (value loss 3.5 -> 211). Normalise first.
+                state = output.hidden_states[-1][row, prompt_length - 1].float()
+                values.append(value_head(torch.nn.functional.layer_norm(state, state.shape))[0])
         if with_values:
             return torch.stack(out), torch.stack(values)
         return torch.stack(out)
