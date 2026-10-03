@@ -694,3 +694,15 @@ Windows box, scripts/win_eval/run_d188.ps1 (7 h timer, machine off at the end):
 3. after - the DAgger adapter on the same 73 validation tasks -> S3 d188_after/after.zip
 4. PPO check - 4 practice tasks x 2 flights, one PPO update (value-head fix on the GPU)
 The 273 benchmark test tasks are not used (rule 1). Started 20:59 UTC, 73 validation tasks loaded.
+
+D188 step 1 result (22:38 UTC), "before" on the 73 Land + Pass VALIDATION tasks, scored with
+scripts/score_tasks.py (success = end within 3 m and 10 deg):
+
+| kind | flights | success | nDTW |
+|---|---|---|---|
+| Land | 41 | 26/41 | 0.328 |
+| Pass | 32 | 19/32 | 0.234 |
+| all | 73 | 61.6% | 0.287 |
+
+This is the number DAgger round 1 has to beat on the same tasks (step 3). Step 2 (DAgger
+greedy pass over the 50 practice tasks) started 22:39 UTC.
