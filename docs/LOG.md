@@ -798,3 +798,6 @@ moves; the dog orbits now yaw like the person orbits (token 151490 vs 151492); a
 already well-formed are unchanged. --unconstrained-greedy reproduces the old behaviour.
 NOT in the running D190 (its code bundle d190/vla_code.zip is left unchanged so before and after
 use the same server). Earlier Surround scores (test 1/10) were partly this bug.
+- D190 step 1 result (round-1 model, old server, 100 validation check tasks): success 67%, nDTW
+  0.383. Per kind: Land 13/15, Pass 8/15, Shift 13/15, A/D 9/10, Approach/Move 5/10, Rotate 10/10,
+  Surround 2/10, Turn 4/12, Retreat 3/3. Step 2 at 137/150 DAgger flights at 16:21 UTC.
