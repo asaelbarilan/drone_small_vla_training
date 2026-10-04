@@ -719,3 +719,10 @@ DAgger: 50 practice (train) flights -> 394 relabelled rows, 300 updates, loss 0.
 DAgger fixes Land (stopping at the ground) but not Pass (stopping after passing the object).
 PPO check: 2 updates, value loss 3.54 -> 2.51 (was 3.5 -> 211 before the layer-norm fix), clip
 fraction 1-3%, ratio ~1.0: PPO is stable. Adapter: S3 d188/dagger_r1_adapter/.
+
+D188 Pass analysis (validation flights, after DAgger): all 14 Pass failures stop SHORT (2.9-10 m
+before the end, sideways error <2.5 m). Successes have paths 7.8-13 m, failures mostly 13-20 m.
+The model's first progress line for Pass is ~10 m on every task (correlation with the true
+length 0.04): it does not read the distance from the photo, it says the training mean, and goal
+memory then locks that guess for the whole flight. More DAgger on Pass is unlikely to fix this
+(training already had the true lengths). DAgger round 2 held back pending a Pass fix.
