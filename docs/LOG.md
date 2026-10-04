@@ -827,3 +827,11 @@ use the same server). Earlier Surround scores (test 1/10) were partly this bug.
   ~10 m, D188): the model does not read the target's bearing / distance from the photo; it writes
   the training average. DAgger round 2 (75 Turn tasks) did not change the first line. The teacher's
   label is right for Turn from any state (the object does not move), so the teacher is not the cause.
+
+## D192 (2026-10-04): research - making the model use the photo (NO CODE CHANGED)
+docs/research/VLA_VISUAL_GROUNDING_20261004.md, papers/visual_grounding/. Found two input
+mismatches in our pipeline: training photos are RGB at 256 px, the evaluator sends BGR at 224 px.
+Ranked: (1) fix both in the server and test locally on the Turn / Pass start photos ($0);
+(2) ECoT-style grounded reasoning - the model writes the target's bbox_2d (Qwen's native format)
+before the progress line, labels from base Qwen3-VL as in D189, can be dropped at test time
+(ECoT-Lite). LIT's goal-bottleneck is what our progress line + goal memory already is.
