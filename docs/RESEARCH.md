@@ -315,6 +315,9 @@ tasks are 10 per class. Task-weighted estimate from our per-class rates: about 6
   the dog") and 165 Surround training flights cannot become practice tasks, and DAgger or
   RL cannot practise those classes from the training data. It is fair (same for every
   team) but incomplete for closed-loop post-training (checked 2026-10-04).
+  Fix (D189): the object is reconstructed from the recording - Surround from a circle fit
+  (radii equal the instructions), Turn from a Qwen3-VL box on the last photo - and checked
+  by rendering; 492 Turn + 165 Surround training tasks and 23 + 55 validation tasks kept.
 
 **16. Evaluation rule (rule 1, D187).**
 

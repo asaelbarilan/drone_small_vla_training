@@ -754,3 +754,17 @@ user's PC (local simulator, no model; scripts/rl/fetch_sim_flights.py, replay_ob
   people render closer and to the side - needs a one-off offset calibration.
 - Fetching from Hugging Face reads only the needed parquet row groups (ids are sorted; row-group
   id ranges are in the metadata).
+- D189 build (local, $0, about 2.5 h on the user's PC): scripts/rl/build_object_tasks.py ->
+  Surround: circle fit (radius within 25 % of the stated radius, all passed); Turn: Qwen3-VL-4B
+  box on the last recorded photo -> bearing + distance (max of ground-plane and size estimate;
+  person 1.75 m, dog box 1.0 m). Cross-check: one dog seen in a Turn and a Surround recording
+  2 s apart is placed 0.5 m apart by the two methods. scripts/rl/verify_object_tasks.py renders
+  every Turn task with and without the object and keeps it only if the object is visible
+  (>= 0.2 % of the image) within 0.08 image width (about 9 deg) of the photo's box.
+  | Set | Surround | Turn built | Turn kept (person / dog) | dropped (no box / range / not visible / too small / bearing) |
+  |---|---|---|---|---|
+  | train | 165 | 679 | 492 (375 / 117) | 48 / 6 / 49 / 88 / 50 |
+  | validation | 55 | 33 | 23 (15 / 8) | 2 / 0 / 1 / 6 / 3 |
+  Dogs fail most (uneven ground: placed at z 0 they sink or hide). Files:
+  D:/drone_vla_pilot/data/rl/object_tasks_{train,val}.zip (verified only), verify.json per set,
+  spot-check sheets object_tasks_train_spotcheck*.png. Not flown with the model yet.
