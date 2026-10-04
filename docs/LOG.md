@@ -726,3 +726,14 @@ The model's first progress line for Pass is ~10 m on every task (correlation wit
 length 0.04): it does not read the distance from the photo, it says the training mean, and goal
 memory then locks that guess for the whole flight. More DAgger on Pass is unlikely to fix this
 (training already had the true lengths). DAgger round 2 held back pending a Pass fix.
+
+Per-class error analysis (successes out of 10, 100 TEST tasks flown before rule 1; re-scored from
+saved score files, nothing flown; also in docs/research/VLA_BEYOND_WORLDVLN_20260930.md section 6):
+
+| | Turn | Move | Shift | Rotate | Surround | Asc/Desc | Approach | Retreat | Pass | Land | All |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Memory, no fix (D180) | 3 | 10 | 7 | 6 | 1 | 7 | 7 | 10 | 6 | 4 | 61% |
+| Memory + snap to 0 (D182) | 3 | 10 | 9 | 10 | 1 | 9 | 8 | 10 | 4 | 5 | 69% |
+| OpenVLA-UAV 7B | 10 | 10 | 9 | 1 | 0 | 10 | 9 | 9 | 4 | 5 | 67% |
+
+Biggest gap: Turn (3 vs 10). Land and Pass tied with OpenVLA-UAV; Rotate our win.
