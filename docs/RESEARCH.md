@@ -308,6 +308,13 @@ tasks are 10 per class. Task-weighted estimate from our per-class rates: about 6
   wording).
 - 54 test tasks have a simulator flight starting within 0.5 m; those 168 flights are
   excluded from training (D165).
+- The training data cannot be replayed live for object tasks. Each UAV-Flow-Sim flight
+  has only photos and `log.json` (drone poses, `raw_logs` / `preprocessed_logs`,
+  `instruction`, `instruction_unified`). Where the spawned person, dog or car stood is not
+  saved, although the test tasks have it (`target_pos`, `obj_id`). So 733 Turn ("turn to
+  the dog") and 165 Surround training flights cannot become practice tasks, and DAgger or
+  RL cannot practise those classes from the training data. It is fair (same for every
+  team) but incomplete for closed-loop post-training (checked 2026-10-04).
 
 **16. Evaluation rule (rule 1, D187).**
 
