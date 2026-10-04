@@ -4,6 +4,9 @@ Read `AGENTS.md` first; it applies here in full.
 
 ## Paper data goes in docs/RESEARCH.md
 
+`docs/RESEARCH.md` is NOT the paper; it is the documentation of our research, from which
+the paper is written later.
+
 All data the paper needs is written in `docs/RESEARCH.md` (required list at its top: problem
 and claim, related work, benchmark, evaluation protocol, benchmark flaws, data, model,
 inference, training, compute, main results, per-category results, statistics, ablations,

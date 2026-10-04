@@ -1,4 +1,6 @@
-# RESEARCH - everything the paper needs about this model
+# RESEARCH - documentation of our research (the data the paper will be written from)
+
+**This is NOT the paper.** It is the documentation of our research: every number, run, analysis and decision, with its source, so the paper can be written from it later.
 
 ## Required contents (this file must hold all of these)
 

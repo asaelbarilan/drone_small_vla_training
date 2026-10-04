@@ -2,6 +2,9 @@
 
 ## Paper data goes in docs/RESEARCH.md
 
+`docs/RESEARCH.md` is NOT the paper; it is the documentation of our research, from which
+the paper is written later.
+
 Everything the paper needs about this model is written in `docs/RESEARCH.md`: problem and
 claim, related work, benchmark, evaluation protocol, benchmark flaws, data, model, inference,
 training, compute, main results, per-category results, statistics, ablations, sanity
