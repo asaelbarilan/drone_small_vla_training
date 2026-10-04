@@ -801,3 +801,22 @@ use the same server). Earlier Surround scores (test 1/10) were partly this bug.
 - D190 step 1 result (round-1 model, old server, 100 validation check tasks): success 67%, nDTW
   0.383. Per kind: Land 13/15, Pass 8/15, Shift 13/15, A/D 9/10, Approach/Move 5/10, Rotate 10/10,
   Surround 2/10, Turn 4/12, Retreat 3/3. Step 2 at 137/150 DAgger flights at 16:21 UTC.
+- D190 RESULT (run done 19:06 UTC, box off; same 100 validation tasks, old server both times):
+
+  | Kind | before (round 1) | after (round 2) |
+  |---|---|---|
+  | Land | 13/15 | 15/15 |
+  | Pass | 8/15 | 9/15 |
+  | Shift | 13/15 | 13/15 |
+  | Ascend/Descend | 9/10 | 9/10 |
+  | Approach/Move | 5/10 | 5/10 |
+  | Rotate | 10/10 | 9/10 |
+  | Surround | 2/10 | 2/10 |
+  | Turn | 4/12 | 4/12 |
+  | Retreat | 3/3 | 3/3 |
+  | All | 67% / nDTW 0.383 | 69% / nDTW 0.380 |
+
+  Paired: 3 fixed, 1 broken, p = 0.63 - no clear gain. Turn did not move despite 75 Turn practice
+  tasks; Surround is still capped by the orbit bug (old server). Rotate lost one task (noise at n=10,
+  but by the stated rule a kind got worse). DAgger: 147/150 flights -> 934 rows (+394 from round 1),
+  300 updates, loss 0.83 -> 0.52; adapter d190/dagger_r2_adapter/.

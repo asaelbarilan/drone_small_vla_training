@@ -570,6 +570,10 @@ task are on S3 and in `D:/drone_vla_pilot/runs/`. MISSING: chosen figures.
   round 1's (DAgger aggregates) and the expert anchor flights of every kind, 300 updates at lr 2e-5.
 - Checked: no flight is in both sets; every check-set flight is a held-out validation flight.
 
+**51c. DAgger round 2 result (D190):** 100 validation tasks, 67% -> 69% (3 fixed, 1 broken, p = 0.63):
+Land 13 -> 15/15, Pass 8 -> 9/15, Rotate 10 -> 9/10, Turn 4/12 and Surround 2/10 unchanged, others equal.
+No clear gain; Turn did not learn from 75 Turn practice tasks.
+
 **52. PPO.**
 - Value head on the layer-normalised last hidden state; GAE with gamma 0.99, lambda
   0.95; reward = call_gain plus the flight reward on the last call; clip 0.05.
