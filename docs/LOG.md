@@ -820,3 +820,10 @@ use the same server). Earlier Surround scores (test 1/10) were partly this bug.
   tasks; Surround is still capped by the orbit bug (old server). Rotate lost one task (noise at n=10,
   but by the stated rule a kind got worse). DAgger: 147/150 flights -> 934 rows (+394 from round 1),
   300 updates, loss 0.83 -> 0.52; adapter d190/dagger_r2_adapter/.
+- D190 Turn analysis (validation, both models): on all 12 Turn flights the FIRST progress line says
+  a right turn of +24 deg (one says +22), whatever the scene; the true turns range -30 .. +25 deg.
+  Goal memory then locks that guess and every flight ends at about +22 deg. The 4 successes are the
+  tasks whose true turn happens to be about +20 deg. Same pattern as Pass (first distance always
+  ~10 m, D188): the model does not read the target's bearing / distance from the photo; it writes
+  the training average. DAgger round 2 (75 Turn tasks) did not change the first line. The teacher's
+  label is right for Turn from any state (the object does not move), so the teacher is not the cause.
