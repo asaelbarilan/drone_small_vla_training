@@ -50,10 +50,19 @@ def box_from_text(text):
     return [int(v) / 1000 for v in m.groups()] if m else None
 
 
-def object_from_box(box, cam_x, cam_y, cam_z, yaw_deg):
-    """Ground-plane position of the box's bottom centre seen from a level 90-degree camera."""
-    x1, _, x2, y2 = box
-    forward = cam_z * 0.5 / max(y2 - 0.5, 0.02)
+# Box height of the object in metres (D189, from the placements that matched the photos):
+# a person about 1.75, a robot dog's box about 1.0.
+HEIGHT_M = {"person": 1.75, "dog": 1.0}
+
+
+def object_from_box(box, cam_x, cam_y, cam_z, yaw_deg, what="person"):
+    """Position of the object seen in a level 90-degree camera. Distance = the larger of the
+    ground-plane estimate (box bottom = feet) and the size estimate (box height = known height):
+    loose boxes reach too low, which made the ground-plane estimate place dogs too close."""
+    x1, y1, x2, y2 = box
+    ground = cam_z * 0.5 / max(y2 - 0.5, 0.02)
+    size = HEIGHT_M[what] * 100 * 0.5 / max(y2 - y1, 0.01)
+    forward = max(ground, size)
     right = forward * ((x1 + x2) / 2 - 0.5) / 0.5
     t = math.radians(yaw_deg)
     return (cam_x + forward * math.cos(t) - right * math.sin(t),
@@ -174,7 +183,8 @@ def main():
         idx = photos[episode.removeprefix("sim_")][0]
         x, y, z, yaw = paths[episode]["proprio"][min(idx, len(paths[episode]["proprio"]) - 1)]
         cx, cy = to_world(start, x * 100, y * 100)
-        ox, oy, dist = object_from_box(box, cx, cy, start[2] + z * 100, start[4] + yaw)
+        what = "dog" if "dog" in paths[episode]["instruction_unified"].lower() else "person"
+        ox, oy, dist = object_from_box(box, cx, cy, start[2] + z * 100, start[4] + yaw, what)
         if not 0.8 <= dist / 100 <= 25:
             summary["dropped"]["distance_out_of_range"] = summary["dropped"].get("distance_out_of_range", 0) + 1
             continue
