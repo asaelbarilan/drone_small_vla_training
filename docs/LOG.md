@@ -737,3 +737,20 @@ saved score files, nothing flown; also in docs/research/VLA_BEYOND_WORLDVLN_2026
 | OpenVLA-UAV 7B | 10 | 10 | 9 | 1 | 0 | 10 | 9 | 9 | 4 | 5 | 67% |
 
 Biggest gap: Turn (3 vs 10). Land and Pass tied with OpenVLA-UAV; Rotate our win.
+
+## D189 (2026-10-04): can Turn / Surround training flights become practice tasks? (local, $0)
+UAV-Flow-Sim logs hold only drone poses + instruction (no object position), so the 733 Turn and
+165 Surround training flights were dropped from the practice tasks (D172). Local check on the
+user's PC (local simulator, no model; scripts/rl/fetch_sim_flights.py, replay_object_check.py):
+- Replaying recorded poses reproduces the recorded photos (same scene, same framing).
+- Surround: a least-squares circle through the path gives the centre; fitted radii 6.0 / 3.0 /
+  6.0 m equal the instructions exactly, and the placed person stands where the recorded one does.
+- Objects: the evaluator's use_obj 2 is a CAR. People and dogs are both BP_Character_21:
+  appearance 1-19 = people, 20-35 = robot dogs; appearance 0 is ignored when switching.
+- Turn: Qwen3-VL-4B (local, NF4) boxes the dog / person in the recorded last photo; the foot row
+  and centre column give distance and bearing (90 deg FOV, camera height = drone z, ground z 0).
+  Dogs: 2 of 3 placed exactly (same spot and size in first and last frame), 1 roughly.
+  People: the person mesh sits about 1 m from its actor location (depends on its rotation), so
+  people render closer and to the side - needs a one-off offset calibration.
+- Fetching from Hugging Face reads only the needed parquet row groups (ids are sorted; row-group
+  id ranges are in the metadata).
