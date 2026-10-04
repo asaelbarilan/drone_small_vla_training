@@ -118,7 +118,7 @@ def left_from_goal(goal, position_m, yaw_total_deg):
 
 def qwen_loader(
     adapter, chunk, precision, temperature=None, contrast=None, plausible=0.1,
-    progress=False, goal_memory=False, deadband=None,
+    progress=False, goal_memory=False, deadband=None, constrain=True,
 ):
     from peft import PeftModel
     from train_uav_flow_vla import (
@@ -248,6 +248,17 @@ def qwen_loader(
                 STATE["sample"] = dict(prompt=prompt, ids=ids, logps=logps, temperature=temperature)
                 if "progress_text" in row:
                     STATE["sample"]["progress_text"] = row["progress_text"]
+            elif constrain:
+                # D191: greedy over the 256 action tokens only, exactly 4 x chunk of them. Before,
+                # greedy was unconstrained and non-action tokens were dropped afterwards; on
+                # "Orbit the dog clockwise" the model put a non-action token in every yaw slot,
+                # 24 of 32 were left, and the server answered no moves (flight ended at once).
+                # Where the best token already is an action token the answer is unchanged.
+                ids = model.generate(
+                    **api.cuda(batch), max_new_tokens=4 * chunk, min_new_tokens=4 * chunk, do_sample=False,
+                    use_cache=True, logits_processor=LogitsProcessorList([ActionTokensOnly()]),
+                    pad_token_id=processor.tokenizer.pad_token_id,
+                )[0, batch["input_ids"].shape[1] :].tolist()
             else:
                 ids = model.generate(
                     **api.cuda(batch), max_new_tokens=4 * chunk + 2, do_sample=False, use_cache=True
@@ -362,6 +373,12 @@ def main():
         "--memory-deadband",
         help="D182 with --goal-memory: 'metres,degrees'; inside it the line becomes 0 (arrived)",
     )
+    parser.add_argument(
+        "--unconstrained-greedy",
+        action="store_true",
+        help="D191: the old greedy decoding (any token, non-action tokens dropped afterwards); "
+        "only to reproduce runs before D191",
+    )
     args = parser.parse_args()
     assert args.progress or not args.goal_memory, "--goal-memory needs --progress"
     deadband = [float(v) for v in args.memory_deadband.split(",")] if args.memory_deadband else None
@@ -379,6 +396,7 @@ def main():
         STATE["predict"] = qwen_loader(
             args.path, args.chunk, args.precision, args.rollout_temperature, args.contrast_alpha,
             progress=args.progress, goal_memory=args.goal_memory, deadband=deadband,
+            constrain=not args.unconstrained_greedy,
         )
     args.log.parent.mkdir(parents=True, exist_ok=True)
     STATE["log"] = open(args.log, "a", encoding="utf-8")  # noqa: SIM115 - lives with the server

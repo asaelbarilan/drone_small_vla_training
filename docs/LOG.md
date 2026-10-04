@@ -784,3 +784,17 @@ No flight is in both sets (checked). At 12:08 UTC: 100 tasks selected, "before" 
   says "Left +00.0,+00.1,+00.0,-360", then phase 2 does not yield 32 action tokens, the server
   returns [] and the evaluator stops (flight "no data"). Same server before and after, so the
   comparison stays fair; to investigate after the run (likely Surround in D182 too: 1/10).
+
+## D191 (2026-10-04): the orbit bug - greedy decoding was not restricted to action tokens (fixed, local, $0)
+Reproduced locally (round-1 adapter, NF4, the 20 Surround + Rotate check tasks rendered as the
+evaluator sends them): on both "Orbit the dog clockwise at a 5.5-meter radius." tasks the line is
+"Left +00.0,+00.1,+00.0,-360" and phase 2 writes 8 x [dx, dy, dz, token 151022]: the yaw slot is a
+token OUTSIDE the 256 action tokens. Greedy decoding was unconstrained and dropped non-action
+tokens afterwards -> 24 of 32 left -> decode None -> the server answered no moves -> the evaluator
+ended the flight at once. The other 18 tasks were well-formed.
+Fix (scripts/uav_flow_eval_server.py): greedy phase 2 generates exactly 4 x chunk tokens with the
+same ActionTokensOnly mask that sampling already used. Re-run on all 20 tasks: every answer has 8
+moves; the dog orbits now yaw like the person orbits (token 151490 vs 151492); answers that were
+already well-formed are unchanged. --unconstrained-greedy reproduces the old behaviour.
+NOT in the running D190 (its code bundle d190/vla_code.zip is left unchanged so before and after
+use the same server). Earlier Surround scores (test 1/10) were partly this bug.
