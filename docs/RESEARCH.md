@@ -42,6 +42,69 @@ Below: Part 1 is the same list made specific to this project. Part 2 (below it, 
 itself, one section per item, each with its number, its source file and the D-entry in
 `docs/LOG.md`. Rule 1 applies: decisions on validation, the test set flown once at the end.
 
+## Research history (the story so far, 2026-08 to 2026-10-04)
+
+Sources: decisions D-1..D151 in the old combined repo
+(`drone_architectures_paper/uav_vla_aws_pilot_20260916/docs/RESEARCH_LOG.md`,
+`docs/VLA_DRONE_TRAINING.md`), D152 onward in `docs/LOG.md`.
+
+0. **Origin - the architecture paper.** We compared drone architectures with Gemma as the
+   VLM planner. Gemma could find and reach targets but needed about 1.7 s per decision while
+   the drone kept flying; no Gemma configuration completed a mission, and every architecture
+   number came from hand-written policies, not a learned network (D-27, D-40). That is why we
+   decided to train a VLA: a model that outputs the drone's moves itself.
+1. **First Qwen steps (D-115 to D-134).** Qwen3-VL-4B passed an image gate (6/6 object
+   localisation on new frames). First QLoRA training on the local RTX 4060 (8 GB) on 16
+   examples from our own simulator; the action convention was fixed (forward-right-down,
+   clockwise yaw). It still missed 13/16 exact training answers, and the data had a hidden
+   cheat (the goal bearing was computed from the simulator's goal position).
+2. **SmolVLM vs Qwen (D135-D139).** At the user's request, SmolVLM 256M and 500M were trained
+   on the same data and settings: capacity vs training length, then more balanced data. The
+   small models often failed even to produce a valid action.
+3. **OpenFly (D140-D151).** Smol-256, Smol-500 and Qwen trained on official OpenFly data and
+   compared with the released OpenFly model. The metric failed: the released model was
+   charged for unparsed output, the panel could not separate models, and a no-vision oracle
+   beat every model. Our normalisation was also wrong (D148). The OpenFly simulator would not
+   render on our hardware (D151), so OpenFly was stopped.
+4. **UAV-Flow (D152-D157).** Switched to UAV-Flow (real flights + a simulator benchmark);
+   read the four UAV-Flow papers in full; goal set to better results on less data. SmolVLM-256M
+   endpoint pilot (D153): first model whose score depended on the camera (better than blinded
+   on 62/83), but it lost to a trivial instruction lookup. Three harness bugs fixed in our
+   scoring code. Rebuilt as one example per step (D154, 34,018 steps); Qwen shard runs.
+5. **Official format (D158-D161).** Ported the official OpenVLA-UAV format (4-D moves, K = 8,
+   256 bins, 0.1/99.9 ranges). The 10-shard adapter was the first to beat the text-only
+   baselines (3.07 m vs 4.21-4.53 m), but gray or swapped photos changed almost nothing:
+   the gain came from state + instruction, not the image.
+6. **Closed loop in the simulator (D162-D166).** The local run failed and the Linux AWS run
+   was invalid; a Windows AWS GPU box worked. OpenVLA-UAV nDTW 0.395; ours 0.128 (real only),
+   0.336 / 50% success after adding simulator data. Harness audit: state chaining exact,
+   evaluator flies our poses, sign conventions agree.
+7. **Stopping early (D167-D169).** Land and Pass flights stopped about halfway (stop chunk).
+   A stop-confirm rule was tried; the Land training data was checked and fine. Training with
+   504 held-out simulator flights for validation and early stopping.
+8. **The big run to 18,000 (D170-D171).** All 54 real shards + simulator, one A10G:
+   adapter_s18000, 52% success / nDTW 0.367.
+9. **Progress tokens to 31,000 (D172-D179).** Research on what the papers do not solve (goal:
+   beat WorldVLN 79.1%). Progress line added ("Left" = what remains to the flight end);
+   steady lr then decay to 31,000: 61% / 0.383.
+10. **Goal memory + deadband (D180-D182).** Goal memory keeps the first line's goal; it broke
+    Rotate/Shift (small overshoots kept the drone moving), fixed by the deadband (1 m, 5 deg):
+    69% / 0.449, above OpenVLA-UAV (67% / 0.395) at about half the size.
+11. **Release and repo split (D183).** Package for paper, GitHub and Hugging Face (not uploaded);
+    training machine closed; VLA and architecture work split into two repositories.
+12. **Post-training methods (D184-D185).** Research on methods cheaper than GRPO; GRPO, PPO and
+    DAgger built and switchable; PPO value loss blew up (3.5 -> 211) and was fixed by
+    layer-normalising the value head's input.
+13. **Rule 1 (D187).** The 273 test tasks are frozen until the final run; the 100 already used
+    are disclosed. Decisions now use 307 validation tasks from the 504 held-out flights.
+14. **DAgger round 1 (D188).** 50 practice (train) flights relabelled, 300 updates. On 73
+    Land + Pass validation tasks: 61.6% -> 74.0% (Land 26 -> 36 of 41; 11 fixed, 2 broken,
+    p = 0.02). Pass did not move: the first distance guess is always about 10 m, so long
+    Pass tasks stop short. Turn is the biggest gap to OpenVLA-UAV (3/10 vs 10/10).
+
+Next: fix Pass; check Turn on validation; more DAgger; camera controls; one final run on the
+273 test tasks; measure the 8 GB claim.
+
 ## Part 1 - the list
 
 ### A. Problem and claim
