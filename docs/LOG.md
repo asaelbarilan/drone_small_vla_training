@@ -768,3 +768,14 @@ user's PC (local simulator, no model; scripts/rl/fetch_sim_flights.py, replay_ob
   Dogs fail most (uneven ground: placed at z 0 they sink or hide). Files:
   D:/drone_vla_pilot/data/rl/object_tasks_{train,val}.zip (verified only), verify.json per set,
   spot-check sheets object_tasks_train_spotcheck*.png. Not flown with the model yet.
+
+## D190 (2026-10-04 12:05 UTC): DAgger round 2 launched (user-approved, about $10)
+Windows box, scripts/win_eval/run_d190.ps1 (13 h timer, machine off at the end), code d190/vla_code.zip.
+1. before - round-1 model (d188/dagger_r1_adapter + line + memory + deadband) on the 100-task
+   VALIDATION check set d190/check_tasks.zip (Land 15, Pass 15, Shift 15, A/D 10, Approach/Move 10,
+   Rotate 10, Surround 10, Turn 12, Retreat 3) -> d190_before/before.zip
+2. DAgger round 2 - greedy pass over 150 TRAINING tasks d190/dagger_tasks.zip (50 new Land, 75
+   Turn, 25 Surround with reconstructed objects, D189), relabel, 300 updates lr 2e-5 on the new rows
+   + round 1's 394 rows (rl_loop -PriorRows) -> d190/dagger_r2_adapter/
+3. after - same 100 validation tasks -> d190_after/after.zip. Reject the round if any kind drops.
+No flight is in both sets (checked). At 12:08 UTC: 100 tasks selected, "before" server loading.
