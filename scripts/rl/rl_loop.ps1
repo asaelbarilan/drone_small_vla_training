@@ -18,6 +18,7 @@ param([int]$Rounds = 3, [int]$Passes = 8, [double]$Temperature = 1.0, [int]$PerK
       [string]$AnchorKey = "d175/anchor_store.tar", [string]$TaskZipKey = "d172/rl_tasks.zip",
       [ValidateSet("grpo", "ppo", "dagger")][string]$Method = "grpo", [string]$Kinds = "",
       [int]$DaggerUpdates = 300, [double]$DaggerLr = 2e-5,
+      [string]$PriorRows = "",
       [string]$TrainArgs = "", [string]$ServerArgs = "", [int]$HardStopMinutes = 1440,
       [switch]$NoShutdown)
 $ErrorActionPreference = "Continue"
@@ -54,6 +55,9 @@ try {
     $current = $Adapter
     $reports = @()
     $daggerRows = @()
+    # D190: DAgger rows from earlier runs on this box (comma-separated .jsonl), aggregated too.
+    if ($PriorRows) { $daggerRows += $PriorRows.Split(",") | Where-Object { Test-Path $_ } }
+    "prior DAgger rows: $($daggerRows -join ' ')"
     $valueHead = ""
     $taskZip = ""
     if ($Method -eq "dagger") { $Passes = 1; $Temperature = 0 }  # greedy, every photo saved

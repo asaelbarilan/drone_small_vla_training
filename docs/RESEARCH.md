@@ -556,6 +556,20 @@ task are on S3 and in `D:/drone_vla_pilot/runs/`. MISSING: chosen figures.
   0.287 -> 0.305.
 - 11 tasks fixed, 2 broken, p = 0.02.
 
+**51b. DAgger round 2 plan (D190, user-approved 2026-10-04, about $10):**
+
+| Step | What happens | Tasks | From which set |
+|---|---|---|---|
+| 1. Before | measure the current (round-1) model, no learning | 100 | validation |
+| 2. DAgger round 2 | the model flies, gets corrected, learns | 150 (50 Land, 75 Turn, 25 Surround) | training |
+| 3. After | measure the new model, no learning | the same 100 | validation |
+
+- The 100 validation tasks cover every kind: Land 15, Pass 15, Shift 15, A/D 10, Approach/Move
+  10, Rotate 10, Surround 10, Turn 12, Retreat 3. A round is rejected if any kind gets worse.
+- Teacher = the recorded expert flight (dagger_relabel.py). The update uses round 2's rows plus
+  round 1's (DAgger aggregates) and the expert anchor flights of every kind, 300 updates at lr 2e-5.
+- Checked: no flight is in both sets; every check-set flight is a held-out validation flight.
+
 **52. PPO.**
 - Value head on the layer-normalised last hidden state; GAE with gamma 0.99, lambda
   0.95; reward = call_gain plus the flight reward on the last call; clip 0.05.
