@@ -779,3 +779,8 @@ Windows box, scripts/win_eval/run_d190.ps1 (13 h timer, machine off at the end),
    + round 1's 394 rows (rl_loop -PriorRows) -> d190/dagger_r2_adapter/
 3. after - same 100 validation tasks -> d190_after/after.zip. Reject the round if any kind drops.
 No flight is in both sets (checked). At 12:08 UTC: 100 tasks selected, "before" server loading.
+- D190 bug seen at 12:30 UTC (24/100 before flights): 3 flights ended at once with "Response
+  'action' is empty" - e.g. "Orbit the dog clockwise at a 5.5-meter radius": the progress line
+  says "Left +00.0,+00.1,+00.0,-360", then phase 2 does not yield 32 action tokens, the server
+  returns [] and the evaluator stops (flight "no data"). Same server before and after, so the
+  comparison stays fair; to investigate after the run (likely Surround in D182 too: 1/10).
