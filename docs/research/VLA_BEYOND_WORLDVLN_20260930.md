@@ -123,6 +123,40 @@ gaps against WorldVLN's released code:
 4. **No Surround tasks** (flight records carry no object placement), so RL cannot help
    that class.
 
+## 6. Update 2026-10-04: per-class error analysis after progress line + goal memory + deadband
+
+Successes out of 10 on the 100 TEST tasks (first 10 per class), success = end within 3 m and
+10 deg. These were development runs flown before rule 1 (D187); the paper must disclose them,
+and the test tasks are not flown again. Re-scored from the saved score files
+(`runs/sim_eval_win/{d178_s31000_goalmem,d178_s31000_memdead,openvla}/score.json`).
+
+| | Turn | Move | Shift | Rotate | Surround | Asc/Desc | Approach | Retreat | Pass | Land | All |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| WorldVLN (paper, % of all 273) | 60% | 100% | 86% | 47% | 58% | 95% | 98% | 92% | 40% | 93% | 79.1% |
+| Ours: memory, no fix (D180) | 3 | 10 | 7 | 6 | 1 | 7 | 7 | 10 | 6 | 4 | 61% |
+| Ours: memory + snap to 0 (D182) | 3 | 10 | 9 | 10 | 1 | 9 | 8 | 10 | 4 | 5 | 69% |
+| OpenVLA-UAV 7B (same harness) | 10 | 10 | 9 | 1 | 0 | 10 | 9 | 9 | 4 | 5 | 67% |
+
+Reading it:
+- Our biggest gap to OpenVLA-UAV is **Turn** (3 vs 10): facing a person/animal needs the camera.
+- **Land** (20% of the benchmark) and **Pass** (15%) are tied with OpenVLA-UAV and far below
+  WorldVLN on Land; they decide the task-weighted score.
+- Rotate is our clear win (10 vs 1), from the progress line + deadband.
+- Surround: end-point scoring gives ~0 for every model (orbits; see note in section 1).
+
+Follow-up on VALIDATION (rule 1; D188, 73 Land + Pass validation tasks):
+
+| | Land | Pass | All | nDTW |
+|---|---|---|---|---|
+| before (adapter_s31000 + memory + snap) | 26/41 | 19/32 | 61.6% | 0.287 |
+| after DAgger round 1 | 36/41 | 18/32 | 74.0% | 0.305 |
+
+- DAgger fixes Land (11 fixed, 1 broken).
+- Pass does not move: every failed Pass flight stops short. The model's first progress line
+  for Pass is ~10 m on every task (correlation with the true length 0.04), and goal memory
+  locks that guess. The open question is whether re-estimating the distance during the flight
+  (no memory lock for Pass) fixes it.
+
 ## Sources
 
 - WorldVLN 2605.15964 (https://arxiv.org/abs/2605.15964); code github.com/EmbodiedCity/WorldVLN.code
