@@ -1,6 +1,42 @@
 # RESEARCH - everything the paper needs about this model
 
-Part 1 is the list of what must be in here. Part 2 (below it, to be filled) holds the data
+## Required contents (this file must hold all of these)
+
+1. Problem and claim - the task, the one-sentence claim, the contributions list, why it matters.
+2. Related work - table of prior models (size, data, open weights, published scores), their
+   exact numbers with sources, methods others tried and dropped.
+3. Benchmark - what it is, test-set size and split per category, exact metrics and success
+   rule, how scores are averaged (per task or per class).
+4. Evaluation protocol - train / validation / test split and what each is used for; any
+   test-set use during development (disclosed); a harness correctness check.
+5. Benchmark flaws - broken or ambiguous test cases, metric blind spots.
+6. Data - sources, sizes, split method, filtering and exclusions, preprocessing, augmentation,
+   licences.
+7. Model - base model, size, fine-tuning method and config, input / output format, action
+   (output) representation.
+8. Inference - decoding settings, any run-time rules, latency and memory.
+9. Training - every phase (start point, data, schedule, learning rate, warmup, steps, batch),
+   why each schedule was chosen, curves (loss, accuracy, learning rate), final checkpoint choice.
+10. Compute - hardware, time per step, total GPU hours, total cost.
+11. Main results - ours vs baselines on the same harness, plus published numbers.
+12. Per-category results for every variant.
+13. Statistics - confidence intervals, paired significance tests.
+14. Ablations - remove each new component one at a time, data mixes, controls for size or
+    step count.
+15. Sanity controls - does the model use each input (blank or swapped image, text only).
+16. Error analysis - failure modes per category, with numbers.
+17. Qualitative examples - plots, frames, model outputs over an episode.
+18. Post-training (RL, DAgger, ...) - method, why chosen, settings, before / after on
+    validation, cost, what broke and how it was fixed.
+19. Deployment - target hardware, memory, latency, quantisation.
+20. Limitations - simulator-only, weak categories, ambiguities.
+21. Ethics and licences - model, data, use restrictions.
+22. Reproducibility - code links, exact commits, seeds, data lists, configs, where every
+    artefact is stored.
+23. Release - model card, weights, inference example, requirements.
+24. Decision log - every decision with date, reason, evidence (`docs/LOG.md`, D-numbers).
+
+Below: Part 1 is the same list made specific to this project. Part 2 (below it, to be filled) holds the data
 itself, one section per item, each with its number, its source file and the D-entry in
 `docs/LOG.md`. Rule 1 applies: decisions on validation, the test set flown once at the end.
 
