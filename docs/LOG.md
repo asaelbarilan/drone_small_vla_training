@@ -706,3 +706,16 @@ scripts/score_tasks.py (success = end within 3 m and 10 deg):
 
 This is the number DAgger round 1 has to beat on the same tasks (step 3). Step 2 (DAgger
 greedy pass over the 50 practice tasks) started 22:39 UTC.
+
+D188 result (run done 02:21 UTC 10-04, box off). Same 73 Land + Pass VALIDATION tasks:
+
+| | Land | Pass | all | nDTW |
+|---|---|---|---|---|
+| before (adapter_s31000) | 26/41 | 19/32 | 61.6% | 0.287 |
+| after DAgger round 1 | 36/41 | 18/32 | 74.0% | 0.305 |
+
+Paired per task: 11 tasks fixed (all Land), 2 broken (1 Land, 1 Pass); sign test p = 0.02.
+DAgger: 50 practice (train) flights -> 394 relabelled rows, 300 updates, loss 0.74 -> 0.51.
+DAgger fixes Land (stopping at the ground) but not Pass (stopping after passing the object).
+PPO check: 2 updates, value loss 3.54 -> 2.51 (was 3.5 -> 211 before the layer-norm fix), clip
+fraction 1-3%, ratio ~1.0: PPO is stable. Adapter: S3 d188/dagger_r1_adapter/.
