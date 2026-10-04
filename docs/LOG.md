@@ -835,3 +835,9 @@ Ranked: (1) fix both in the server and test locally on the Turn / Pass start pho
 (2) ECoT-style grounded reasoning - the model writes the target's bbox_2d (Qwen's native format)
 before the progress line, labels from base Qwen3-VL as in D189, can be dropped at test time
 (ECoT-Lite). LIT's goal-bottleneck is what our progress line + goal memory already is.
+- D192 check (local, $0): asked "Locate the person/dog ... bbox_2d" on the 12 Turn validation start
+  photos (correct colours, 256 px). Base Qwen3-VL-4B: boxes the person 8/8; the robot dog 1/4 with
+  the word "dog" (D189 found them when prompted "a four-legged robot dog"). Our round-1 model: 0/12 -
+  it answers EVERY question with a progress line and move tokens ("Left +00.6,+01.0,...") whatever
+  is asked. The fine-tune has replaced the base model's grounding output entirely (forgetting), so
+  a box-first design must co-train boxes (labels from base Qwen) - it cannot be switched on by prompt.
