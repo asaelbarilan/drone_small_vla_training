@@ -6,6 +6,10 @@
 > the paper must say so. Decisions from now on use validation tasks built from the 504 held-out
 > UAV-Flow-Sim flights (D169, `release/qwen3vl4b_uavflow_vla/sim_val_flights.json`).
 
+> **Decision (user, 2026-10-04): every run after D190 uses the D191 fixed server** (greedy
+> decoding restricted to action tokens). D190 itself keeps the old server so its before / after
+> stay comparable; the next run re-measures the D190 models with the fixed server first.
+
 ### Data sets
 
 | Set | Made from | Used for |
