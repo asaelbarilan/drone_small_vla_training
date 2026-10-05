@@ -10,6 +10,22 @@
 > decoding restricted to action tokens). D190 itself keeps the old server so its before / after
 > stay comparable; the next run re-measures the D190 models with the fixed server first.
 
+### D193 checklist - what every run must keep (user, 2026-10-05: "insert what we have learned so we don't forget")
+
+| # | Lesson | Where it lives |
+|---|---|---|
+| 1 | Progress line ("Left ...") before the moves | trainer `--progress`, server `--progress` (D175) |
+| 2 | Goal memory + arrival deadband 1 m / 5 deg | server `--goal-memory --memory-deadband 1.0,5` (D175, D182) |
+| 3 | Greedy moves restricted to the 256 action tokens (orbit bug) | server default since D191 |
+| 4 | DAgger corrections of rounds 1 and 2 stay in the training mix | trainer `--extra-rows` (D188, D190) |
+| 5 | Mirror copies, with the box mirrored too | trainer `--mirror`, `mirror_box` (D193) |
+| 6 | Photos as the evaluator sends them: BGR, 224 px | trainer `--photo-aug` (D192, D193) |
+| 7 | The model must use the photo: box of the target before the Left line | trainer `--boxes`, server `--box` (D192, D193) |
+| 8 | Decisions on validation only; the 273 test tasks untouched | rule 1, `d190/check_tasks.zip` (D187) |
+| 9 | Judge by validation flights per kind, not by loss | D169, D190 |
+| 10 | Turn / Surround practice and validation tasks place the person / dog (appearance 1-35, never 0) | D189 |
+| 11 | Machines turn themselves off; bucket from `$VLA_BUCKET`; no HF upload yet | D181, repo rules |
+
 ### Data sets
 
 | Set | Made from | Used for |

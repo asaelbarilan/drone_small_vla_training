@@ -24,6 +24,7 @@ import re
 import time
 from pathlib import Path
 
+import numpy as np
 import torch
 import torch.nn.functional as F
 from peft import (
@@ -58,6 +59,8 @@ OFFICIAL_REPEAT = 5
 PROGRESS_PATTERN = re.compile(
     r"Left ([+-]\d\d\.\d),([+-]\d\d\.\d),([+-]\d\d\.\d),([+-]\d\d\d)"
 )
+# D193 box-first line, Qwen's native grounding JSON: {"bbox_2d": [x1, y1, x2, y2]} or [].
+BOX_PATTERN = re.compile(r'"bbox_2d"\s*:\s*\[([^\]]*)\]')
 SMOL500 = "D:/drone_vla_pilot/models/SmolVLM-500M-Instruct/a7da5b986cb59b408707209984f360a5f4ad7e47"
 
 
@@ -155,6 +158,29 @@ def parse_progress(text):
     return [float(g) for g in match.groups()] if match else None
 
 
+def box_text(box):
+    """D193 box-first: the target's box in Qwen's native JSON (0-1000 image frame), written
+    before the progress line; an empty list when the instruction names no visible object."""
+    return '{"bbox_2d": [' + ", ".join(str(int(v)) for v in box) + "]}\n"
+
+
+def parse_box(text):
+    """The first bbox_2d in text -> [x1, y1, x2, y2] (0-1000), [] for an empty box, None if absent."""
+    match = BOX_PATTERN.search(text or "")
+    if not match:
+        return None
+    values = [int(v) for v in re.findall(r"-?\d+", match.group(1))]
+    return values if len(values) == 4 else []
+
+
+def mirror_box(box):
+    """Left-right flip in the 0-1000 frame."""
+    if not box:
+        return box
+    x1, y1, x2, y2 = box
+    return [1000 - x2, y1, 1000 - x1, y2]
+
+
 def mirror_instruction(text):
     """Swap the side words in one pass, keeping capitalisation."""
 
@@ -177,6 +203,7 @@ def mirror_row(row):
         "prompt": mirror_instruction(row["prompt"]),
         "chunk": [[dx, -dy, dz, -dyaw] for dx, dy, dz, dyaw in row["chunk"]],
         **mirror_progress(row),
+        **({"box": mirror_box(row["box"])} if "box" in row else {}),
     }
 
 
@@ -310,9 +337,11 @@ def encode(processor, tokenizer, row, k, gray=False, with_answer=True, image=Non
         add_generation_prompt=True,
     )
     batch = processor(text=[text], images=[image], return_tensors="pt")
+    box = box_ids(processor, row)
     progress = progress_ids(processor, row)
     if not with_answer:
-        # Generation continues after a given progress line (server phase 2, D175).
+        # Generation continues after the given box (D193) and progress line (server phase 2, D175).
+        batch = append_ids(batch, box)
         return append_ids(batch, progress) if "progress_text" in row else batch
     prompt_length = batch["input_ids"].shape[1]
     if row.get("progress_context"):
@@ -320,12 +349,24 @@ def encode(processor, tokenizer, row, k, gray=False, with_answer=True, image=Non
         # policy's; the line is context, only the actions are scored.
         batch = append_ids(batch, progress)
         prompt_length, progress = batch["input_ids"].shape[1], []
-    ids = [*progress, *tokenizer.token_ids(row["chunk"][:k]), processor.tokenizer.eos_token_id]
+    ids = [*box, *progress, *tokenizer.token_ids(row["chunk"][:k]), processor.tokenizer.eos_token_id]
     batch = append_ids(batch, ids)
     labels = batch["input_ids"].clone()
     labels[:, :prompt_length] = -100
     batch["labels"] = labels
     return batch
+
+
+def box_ids(processor, row):
+    """D193: the box line as text ids (`box_text` from the server, or the `box` label); []
+    when the row has no box (unlabelled frames train without one, ECoT-Lite's dropout)."""
+    if "box_text" in row:
+        text = row["box_text"]
+    elif "box" in row:
+        text = box_text(row["box"])
+    else:
+        return []
+    return processor.tokenizer.encode(text, add_special_tokens=False)
 
 
 def progress_ids(processor, row):
@@ -398,14 +439,26 @@ def collate(items, pad_id):
 class Examples(torch.utils.data.Dataset):
     """Encodes on DataLoader workers so image decoding overlaps the GPU step."""
 
-    def __init__(self, processor, tokenizer, rows, k):
+    def __init__(self, processor, tokenizer, rows, k, photo_aug=False):
         self.processor, self.tokenizer, self.rows, self.k = processor, tokenizer, rows, k
+        self.photo_aug = photo_aug
 
     def __len__(self):
         return len(self.rows)
 
     def __getitem__(self, index):
-        return encode(self.processor, self.tokenizer, self.rows[index], self.k)
+        row = self.rows[index]
+        if not self.photo_aug:
+            return encode(self.processor, self.tokenizer, row, self.k)
+        # D193: the evaluator hands the model the simulator's BGR array as RGB, at 224 px,
+        # while the stored photos are RGB at 256 px (D192). Train on both, so the model sees
+        # what it gets in flight and keeps what it learned on the stored photos.
+        image = load_image(row)
+        if random.random() < 0.5:
+            image = Image.fromarray(np.asarray(image)[:, :, ::-1].copy())
+        if random.random() < 0.5:
+            image = image.resize((224, 224))
+        return encode(self.processor, self.tokenizer, row, self.k, image=image)
 
 
 class Collate:
@@ -500,6 +553,23 @@ def main():
         help="D185 DAgger: .jsonl training rows (dagger_relabel.py) added to the training set",
     )
     parser.add_argument("--extra-repeat", type=int, default=1, help="copies of each extra row")
+    parser.add_argument(
+        "--boxes",
+        type=Path,
+        help="D193 box-first: label_boxes.py output; labelled frames write the target's box "
+        "before the progress line",
+    )
+    parser.add_argument(
+        "--box-repeat",
+        type=int,
+        default=1,
+        help="D193: training copies of each box-labelled row (the labelled frames are a small share)",
+    )
+    parser.add_argument(
+        "--photo-aug",
+        action="store_true",
+        help="D193: random BGR swap and 224 px resize of training photos (what the evaluator sends)",
+    )
     parser.add_argument("--updates", type=int, default=800)
     parser.add_argument("--batch-size", type=int, default=1, help="examples per forward pass")
     parser.add_argument("--accum", type=int, default=8, help="forward passes per update")
@@ -619,6 +689,22 @@ def main():
         ]
         train = [r for r in rows if r[args.split] == "train" and r["chunk_len"] == args.chunk]
         held = [r for r in rows if r[args.split] == "val" and r["chunk_len"] == args.chunk]
+    if args.boxes:
+        labels = {}
+        for line in args.boxes.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                item = json.loads(line)
+                labels[item["image"]] = item["box"]
+        boxed = 0
+        for r in [*train, *held, *sim_held]:
+            if r["image"] in labels:
+                box = labels[r["image"]]
+                r["box"] = mirror_box(box) if r.get("mirror") else box
+                boxed += 1
+        extra_boxed = [r for r in train if "box" in r] * (args.box_repeat - 1)
+        train += extra_boxed
+        if main_rank:
+            print(json.dumps(dict(box_labels=len(labels), rows_with_box=boxed, box_repeats_added=len(extra_boxed))), flush=True)
     for path in args.extra_rows:
         extra = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
         train += extra * args.extra_repeat
@@ -703,6 +789,8 @@ def main():
         data_format=args.format,
         init_adapter=str(args.init_adapter) if args.init_adapter else None,
         mirrored=args.mirror,
+        boxes=str(args.boxes) if args.boxes else None,
+        photo_aug=args.photo_aug,
         instruction_field=args.instruction if args.format == "official" else "instruction_unified",
         trainable_module_roots=covered,
         train_examples=len(train),
@@ -774,7 +862,7 @@ def main():
     pad_id = processor.tokenizer.pad_token_id
     loader = iter(
         torch.utils.data.DataLoader(
-            Examples(processor, tokenizer, train, args.chunk),
+            Examples(processor, tokenizer, train, args.chunk, args.photo_aug),
             batch_size=args.batch_size,
             sampler=ExampleOrder(len(train), 1155, (first - 1) * per_update, rank, world),
             num_workers=args.workers,

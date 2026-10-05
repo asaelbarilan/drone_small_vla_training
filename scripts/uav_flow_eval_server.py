@@ -118,14 +118,17 @@ def left_from_goal(goal, position_m, yaw_total_deg):
 
 def qwen_loader(
     adapter, chunk, precision, temperature=None, contrast=None, plausible=0.1,
-    progress=False, goal_memory=False, deadband=None, constrain=True,
+    progress=False, goal_memory=False, deadband=None, constrain=True, box=False,
 ):
     from peft import PeftModel
     from train_uav_flow_vla import (
         OFFICIAL_PROMPT,
+        append_ids,
+        box_text,
         collate_left,
         encode,
         official_stats,
+        parse_box,
         parse_progress,
         progress_text,
         setup,
@@ -209,11 +212,28 @@ def qwen_loader(
         text = progress_text(used)
         return text, info | dict(progress_text=text)
 
+    box_prefix = processor.tokenizer.encode('{"bbox_2d": [', add_special_tokens=False)
+
+    def box_line(row, image):
+        """D193 phase 0: the model first writes the box of the instruction's object (greedy,
+        after a forced '{"bbox_2d": [' prefix); the line is then context for the progress
+        line and the moves, exactly as in box-first training."""
+        batch = append_ids(encode(processor, tokenizer, row, chunk, with_answer=False, image=image), box_prefix)
+        with torch.inference_mode():
+            ids = model.generate(
+                **api.cuda(batch), max_new_tokens=24, do_sample=False,
+                pad_token_id=processor.tokenizer.pad_token_id,
+            )[0, batch["input_ids"].shape[1] :].tolist()
+        found = parse_box('{"bbox_2d": [' + processor.tokenizer.decode(ids, skip_special_tokens=True))
+        return box_text(found or []), found
+
     def predict(image, proprio, instruction):
         metres = [proprio[0] / 100, proprio[1] / 100, proprio[2] / 100, proprio[3]]
         state = ",".join(str(round(float(x), 1)) for x in metres)
         prompt = OFFICIAL_PROMPT.format(state=state, instruction=instruction)
         row = dict(prompt=prompt)
+        if box:
+            row["box_text"], STATE["box"] = box_line(row, image)
         if progress:
             text, info = progress_line(row, image, metres)
             STATE["progress"] = info
@@ -313,6 +333,8 @@ def predict():
         poses.append([*position.tolist(), yaw])
     record = dict(instr=data["instr"], proprio=proprio.tolist(), poses=poses, stop=stop)
     record |= STATE.pop("progress", {})
+    if "box" in STATE:
+        record["box"] = STATE.pop("box")
     if STATE["rollout_dir"]:
         # D172: everything GRPO needs to re-score this call under a newer policy.
         name = f"ep{STATE['episode']:05d}_c{STATE['call']:03d}.png"
@@ -374,6 +396,11 @@ def main():
         help="D182 with --goal-memory: 'metres,degrees'; inside it the line becomes 0 (arrived)",
     )
     parser.add_argument(
+        "--box",
+        action="store_true",
+        help="D193: box-first adapter - the model writes the target's bbox_2d before its progress line",
+    )
+    parser.add_argument(
         "--unconstrained-greedy",
         action="store_true",
         help="D191: the old greedy decoding (any token, non-action tokens dropped afterwards); "
@@ -396,7 +423,7 @@ def main():
         STATE["predict"] = qwen_loader(
             args.path, args.chunk, args.precision, args.rollout_temperature, args.contrast_alpha,
             progress=args.progress, goal_memory=args.goal_memory, deadband=deadband,
-            constrain=not args.unconstrained_greedy,
+            constrain=not args.unconstrained_greedy, box=args.box,
         )
     args.log.parent.mkdir(parents=True, exist_ok=True)
     STATE["log"] = open(args.log, "a", encoding="utf-8")  # noqa: SIM115 - lives with the server

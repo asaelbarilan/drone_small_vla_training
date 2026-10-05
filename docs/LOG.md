@@ -841,3 +841,17 @@ before the progress line, labels from base Qwen3-VL as in D189, can be dropped a
   it answers EVERY question with a progress line and move tokens ("Left +00.6,+01.0,...") whatever
   is asked. The fine-tune has replaced the base model's grounding output entirely (forgetting), so
   a box-first design must co-train boxes (labels from base Qwen) - it cannot be switched on by prompt.
+
+## D193 (2026-10-05): box-first training - give the model back its grounding (user decision)
+User: "don't do the test, do the training to return the box, and insert what we have learned".
+Built (code, not yet run): scripts/label_boxes.py (base Qwen3-VL-4B boxes the object the
+instruction refers to; simulator frames first: 0, every 8th, last; real flights: first, middle,
+last; time-boxed); trainer --boxes (box line `{"bbox_2d": [x1, y1, x2, y2]}` in Qwen's native
+format before the progress line; unlabelled frames train without it, ECoT-Lite style),
+--box-repeat, mirror_box, --photo-aug (random BGR swap + 224 px); server --box (phase 0 writes
+the box after a forced prefix, then the line, then the moves); scripts/aws/train_box_d193.sh
+(g5: setup, DAgger rows rebuilt from the round-1/2 zips, labels, 30-update smoke, 4,000 updates
+lr 1e-4 cosine from d190/dagger_r2_adapter, S3, machine off). Checklist of what every run keeps:
+docs/PLAN.md "D193 checklist". Checks: box helpers + mirror unit-checked; an encoded example
+reads `{"bbox_2d": [...]}\nLeft ...\n` + 32 moves (80 answer tokens); server --box runs end to
+end locally.
