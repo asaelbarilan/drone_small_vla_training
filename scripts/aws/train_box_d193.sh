@@ -34,6 +34,10 @@ unpack() { aws s3 cp $B/vla_code.zip /home/ubuntu/vla_code.zip && $PY -c "import
 unpack || finish
 aws s3 cp $S3/d170/requirements_g5.txt /home/ubuntu/requirements_g5.txt
 $PY -m pip install -q $(grep -iE '^(transformers|peft|accelerate)==' /home/ubuntu/requirements_g5.txt) huggingface_hub
+# The DL AMI ships transformer_engine without its cuDNN library; peft imports it if present and
+# crashes (libcudnn_graph.so.9). We do not use it.
+$PY -m pip uninstall -y -q transformer_engine transformer-engine transformer_engine_torch transformer-engine-torch transformer_engine_cu12 transformer-engine-cu12 2>/dev/null
+$PY -c "import peft, transformers; print('peft', peft.__version__, 'transformers', transformers.__version__)" || finish
 $PY -c "from huggingface_hub import snapshot_download as d; d('Qwen/Qwen3-VL-4B-Instruct', local_dir='$QWEN_MODEL')" || finish
 # the store tar has no top folder (episodes.jsonl, frames/ at its root)
 mkdir -p $STORE
@@ -64,6 +68,7 @@ echo "DAgger rows: $ROWS"; wc -l $ROWS
 
 step "3 box labels (base Qwen3-VL-4B, at most 3 h)"
 $PY scripts/label_boxes.py --model $QWEN_MODEL --out $D/boxes.jsonl --every 8 --batch 16 --max-seconds 10800
+[ -s $D/boxes.jsonl ] || finish
 aws s3 cp $D/boxes.jsonl $B/boxes.jsonl --quiet
 $PY -c "import json; L=[json.loads(l) for l in open('$D/boxes.jsonl')]; print('labels', len(L), 'with box', sum(1 for x in L if x['box']))"
 
