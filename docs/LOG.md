@@ -855,3 +855,6 @@ lr 1e-4 cosine from d190/dagger_r2_adapter, S3, machine off). Checklist of what 
 docs/PLAN.md "D193 checklist". Checks: box helpers + mirror unit-checked; an encoded example
 reads `{"bbox_2d": [...]}\nLeft ...\n` + 32 moves (80 answer tokens); server --box runs end to
 end locally.
+- D193 labeller check (local, 4-bit, 24 real frames): 24/24 got a box; on a drawn sample of 8 the
+  box sits on the instructed tree in 7, one boxed a bench. Noisy but usable auto-labels (ECoT also
+  trains on auto-generated boxes); simulator frames (clearer objects) are labelled first.

@@ -61,6 +61,7 @@ def main():
     parser.add_argument("--every", type=int, default=8)
     parser.add_argument("--batch", type=int, default=16)
     parser.add_argument("--limit", type=int, default=0, help="at most this many frames (0 = all)")
+    parser.add_argument("--nf4", action="store_true", help="4-bit base (local 8 GB GPU check)")
     parser.add_argument("--max-seconds", type=int, default=0, help="stop after this long (0 = no limit)")
     args = parser.parse_args()
     from transformers import AutoProcessor, Qwen3VLForConditionalGeneration
@@ -84,8 +85,13 @@ def main():
         todo = todo[: args.limit]
     print(json.dumps(dict(frames_to_label=len(todo), already=len(done))), flush=True)
 
+    quant = None
+    if args.nf4:  # local 8 GB check only; the cloud run labels with the bf16 base
+        from transformers import BitsAndBytesConfig
+        quant = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=torch.bfloat16)
     model = Qwen3VLForConditionalGeneration.from_pretrained(
-        args.model, torch_dtype=torch.bfloat16, device_map={"": 0}, attn_implementation="sdpa"
+        args.model, torch_dtype=torch.bfloat16, device_map={"": 0}, attn_implementation="sdpa",
+        quantization_config=quant,
     ).eval()
     processor = AutoProcessor.from_pretrained(args.model)
     processor.tokenizer.padding_side = "left"
