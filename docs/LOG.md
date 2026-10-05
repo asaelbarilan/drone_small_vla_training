@@ -870,3 +870,11 @@ Checks: an example encodes as box + next box + Left + 32 moves (107 answer token
 both boxes; the server parses both lines.
 D193 machine: g6.2xlarge i-02a16e9098bf8eec4 (L4), launched 09:2x UTC 2026-10-05 from the AWS
 deep-learning AMI; training waits for d193/go.txt.
+- D193 run (g6.2xlarge i-05f21d6200f5c1045, us-east-1c; the first g6 i-02a16e9098bf8eec4 is
+  STOPPED, kept, after three fixed start-up bugs: CRLF script, store tar without a top folder, the
+  AMI's broken transformer_engine breaking `import peft`; then no capacity to restart it).
+  Setup 10:03, DAgger rows 394 + 934 rebuilt, box labels 10:13-13:13 UTC (3 h budget, 6.4/s):
+  81,424 frames, 61,899 with a box (all simulator frames first). go.txt read: --next-box.
+  Smoke (30 updates) passed - move-token accuracy kept: real 54.7 % / 75.7 % within 1 bin
+  (s31000: 54.5 / 75.5), sim 91.5 / 93.9 (91.7 / 94.1). Training started 13:23 UTC: 4,000
+  updates, about 9.2 s each, ends about 23:40 UTC; adapters to s3://.../d193/run/, machine off.
