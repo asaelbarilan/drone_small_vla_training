@@ -878,3 +878,8 @@ deep-learning AMI; training waits for d193/go.txt.
   Smoke (30 updates) passed - move-token accuracy kept: real 54.7 % / 75.7 % within 1 bin
   (s31000: 54.5 / 75.5), sim 91.5 / 93.9 (91.7 / 94.1). Training started 13:23 UTC: 4,000
   updates, about 9.2 s each, ends about 23:40 UTC; adapters to s3://.../d193/run/, machine off.
+- D193 restart with wandb (user request): the first training start was stopped at update 210
+  (14:01 UTC; pipeline script killed first so the machine stayed on). User logged wandb in on the
+  machine (Session Manager). scripts/aws/train_only_d193.sh restarted training 14:17 UTC, same
+  flags + --wandb-project "vla training": run box_d193
+  (https://wandb.ai/asael/vla%20training/runs/box_d193). Ends about 00:30 UTC, then S3 + machine off.
