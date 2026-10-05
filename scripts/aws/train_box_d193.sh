@@ -9,12 +9,14 @@
 #   - the DAgger rows of rounds 1 and 2, rebuilt here from their rollout zips (--extra-rows);
 #   - photo augmentation for what the evaluator really sends (BGR swap, 224 px; D192);
 #   - the same 504 held-out simulator flights for validation (rule 1: no test tasks).
-# Steps: setup -> DAgger rows -> box labels (base Qwen, time-boxed) -> 30-update smoke ->
-# training -> S3 -> machine off. Hard stop 20 h.
+# Steps: setup -> DAgger rows -> box labels (base Qwen, time-boxed) -> WAIT for the go file
+# (s3://.../d193/go.txt: extra trainer flags decided by the D194 research; the code bundle is
+# re-read then, so new trainer features can be added while labelling runs; no go within 3 h ->
+# train as written) -> 30-update smoke -> training -> S3 -> machine off. Hard stop 22 h.
 set -x
 LOG=/home/ubuntu/train_box_d193.log
 exec >> $LOG 2>&1
-sudo shutdown -h +1200 "D193 hard auto-stop"
+sudo shutdown -h +1320 "D193 hard auto-stop"
 S3=s3://${VLA_BUCKET}
 B=$S3/d193
 D=/opt/dlami/nvme; [ -d $D ] || D=/home/ubuntu
@@ -28,7 +30,8 @@ finish() { aws s3 sync $R $B/run/ --exclude "checkpoint/*" --quiet; aws s3 cp $L
 
 step "1 setup"
 mkdir -p /home/ubuntu/vla && cd /home/ubuntu/vla
-aws s3 cp $B/vla_code.zip /home/ubuntu/vla_code.zip && unzip -oq /home/ubuntu/vla_code.zip -d /home/ubuntu/vla || finish
+unpack() { aws s3 cp $B/vla_code.zip /home/ubuntu/vla_code.zip && $PY -c "import zipfile; zipfile.ZipFile('/home/ubuntu/vla_code.zip').extractall('/home/ubuntu/vla')"; }
+unpack || finish
 aws s3 cp $S3/d170/requirements_g5.txt /home/ubuntu/requirements_g5.txt
 $PY -m pip install -q $(grep -iE '^(transformers|peft|accelerate)==' /home/ubuntu/requirements_g5.txt) huggingface_hub
 $PY -c "from huggingface_hub import snapshot_download as d; d('Qwen/Qwen3-VL-4B-Instruct', local_dir='$QWEN_MODEL')" || finish
@@ -62,10 +65,18 @@ $PY scripts/label_boxes.py --model $QWEN_MODEL --out $D/boxes.jsonl --every 8 --
 aws s3 cp $D/boxes.jsonl $B/boxes.jsonl --quiet
 $PY -c "import json; L=[json.loads(l) for l in open('$D/boxes.jsonl')]; print('labels', len(L), 'with box', sum(1 for x in L if x['box']))"
 
+step "3b wait for go (up to 3 h)"
+EXTRA=""
+for i in $(seq 1 36); do
+  if aws s3 cp $B/go.txt /home/ubuntu/go.txt --quiet; then EXTRA=$(cat /home/ubuntu/go.txt); unpack; break; fi
+  sleep 300
+done
+echo "go flags: $EXTRA"
+
 COMMON="--format official --chunk 8 --precision bf16 --instruction both --mirror --progress \
   --boxes $D/boxes.jsonl --box-repeat 3 --photo-aug --extra-rows $ROWS --extra-repeat 20 \
   --init-adapter $D/start_adapter --batch-size 8 --accum 4 --workers 6 \
-  --sim-val-per-kind 56 --sim-val-examples 1024"
+  --sim-val-per-kind 56 --sim-val-examples 1024 $EXTRA"
 
 step "4 smoke (30 updates)"
 $PY scripts/train_uav_flow_vla.py $COMMON --updates 30 --lr 1e-4 --schedule constant \
