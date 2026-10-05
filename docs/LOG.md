@@ -858,3 +858,15 @@ end locally.
 - D193 labeller check (local, 4-bit, 24 real frames): 24/24 got a box; on a drawn sample of 8 the
   box sits on the instructed tree in 7, one boxed a bench. Noisy but usable auto-labels (ECoT also
   trains on auto-generated boxes); simulator frames (clearer objects) are labelled first.
+
+## D194 (2026-10-05): research - what else to train in the same run; "dreaming in box space" added
+docs/research/VLA_RETRAIN_WHAT_ELSE_20261005.md. In the run: box first (D193), photo augmentation
+(D192), and --next-box: after the box the model writes where the target will be after its 8
+moves ({"bbox_2d_next": [...]}, the labelled frame 8 steps ahead) - a box-sized visual subgoal
+(CoT-VLA +17 % real / +6 % sim with subgoal images; OneWM-VLA future latents 47.9 -> 61.5 %).
+Not in this run: a future-embedding head (cost x1.2-3), general VQA co-training (external data,
+not a measured failure), history frames (2x image tokens). Server --box reads both lines.
+Checks: an example encodes as box + next box + Left + 32 moves (107 answer tokens); mirror flips
+both boxes; the server parses both lines.
+D193 machine: g6.2xlarge i-02a16e9098bf8eec4 (L4), launched 09:2x UTC 2026-10-05 from the AWS
+deep-learning AMI; training waits for d193/go.txt.

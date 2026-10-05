@@ -158,6 +158,13 @@ def parse_progress(text):
     return [float(g) for g in match.groups()] if match else None
 
 
+def next_box_text(box):
+    """D194 "dreaming in box space": where the target will be in the photo after the K moves
+    (the frame K steps ahead; [] when it will be out of view). A box-sized visual subgoal
+    (CoT-VLA predicts a subgoal image; OneWM-VLA a future latent), written after the box."""
+    return '{"bbox_2d_next": [' + ", ".join(str(int(v)) for v in box) + "]}\n"
+
+
 def box_text(box):
     """D193 box-first: the target's box in Qwen's native JSON (0-1000 image frame), written
     before the progress line; an empty list when the instruction names no visible object."""
@@ -204,6 +211,7 @@ def mirror_row(row):
         "chunk": [[dx, -dy, dz, -dyaw] for dx, dy, dz, dyaw in row["chunk"]],
         **mirror_progress(row),
         **({"box": mirror_box(row["box"])} if "box" in row else {}),
+        **({"next_box": mirror_box(row["next_box"])} if "next_box" in row else {}),
     }
 
 
@@ -289,6 +297,7 @@ def official_rows(
                 episode=episode["episode"],
                 step=t,
                 image=episode["images"][t],
+                image_next=episode["images"][min(t + k, n - 1)],
                 prompt=OFFICIAL_PROMPT.format(state=state, instruction=episode[key]),
                 instruction=episode[key],
                 chunk=chunk,
@@ -363,7 +372,7 @@ def box_ids(processor, row):
     if "box_text" in row:
         text = row["box_text"]
     elif "box" in row:
-        text = box_text(row["box"])
+        text = box_text(row["box"]) + (next_box_text(row["next_box"]) if "next_box" in row else "")
     else:
         return []
     return processor.tokenizer.encode(text, add_special_tokens=False)
@@ -560,6 +569,11 @@ def main():
         "before the progress line",
     )
     parser.add_argument(
+        "--next-box",
+        action="store_true",
+        help="D194: after the box, also write the target's box K frames ahead (when labelled)",
+    )
+    parser.add_argument(
         "--box-repeat",
         type=int,
         default=1,
@@ -701,10 +715,14 @@ def main():
                 box = labels[r["image"]]
                 r["box"] = mirror_box(box) if r.get("mirror") else box
                 boxed += 1
+                if args.next_box and r.get("image_next") in labels:
+                    future = labels[r["image_next"]]
+                    r["next_box"] = mirror_box(future) if r.get("mirror") else future
         extra_boxed = [r for r in train if "box" in r] * (args.box_repeat - 1)
         train += extra_boxed
         if main_rank:
-            print(json.dumps(dict(box_labels=len(labels), rows_with_box=boxed, box_repeats_added=len(extra_boxed))), flush=True)
+            nexts = sum(1 for r in train if "next_box" in r)
+            print(json.dumps(dict(box_labels=len(labels), rows_with_box=boxed, rows_with_next_box=nexts, box_repeats_added=len(extra_boxed))), flush=True)
     for path in args.extra_rows:
         extra = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
         train += extra * args.extra_repeat
@@ -790,6 +808,7 @@ def main():
         init_adapter=str(args.init_adapter) if args.init_adapter else None,
         mirrored=args.mirror,
         boxes=str(args.boxes) if args.boxes else None,
+        next_box=args.next_box,
         photo_aug=args.photo_aug,
         instruction_field=args.instruction if args.format == "official" else "instruction_unified",
         trainable_module_roots=covered,

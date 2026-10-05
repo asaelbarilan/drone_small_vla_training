@@ -126,6 +126,7 @@ def qwen_loader(
         append_ids,
         box_text,
         collate_left,
+        next_box_text,
         encode,
         official_stats,
         parse_box,
@@ -221,11 +222,20 @@ def qwen_loader(
         batch = append_ids(encode(processor, tokenizer, row, chunk, with_answer=False, image=image), box_prefix)
         with torch.inference_mode():
             ids = model.generate(
-                **api.cuda(batch), max_new_tokens=24, do_sample=False,
+                **api.cuda(batch), max_new_tokens=52, do_sample=False,
                 pad_token_id=processor.tokenizer.pad_token_id,
             )[0, batch["input_ids"].shape[1] :].tolist()
-        found = parse_box('{"bbox_2d": [' + processor.tokenizer.decode(ids, skip_special_tokens=True))
-        return box_text(found or []), found
+        text = '{"bbox_2d": [' + processor.tokenizer.decode(ids, skip_special_tokens=True)
+        text = text.split("Left")[0]
+        found = parse_box(text)
+        line = box_text(found or [])
+        # D194: an adapter trained with --next-box also writes where the target will be
+        # after its moves; keep that line as context too (absent for box-only adapters).
+        after = text.split("bbox_2d_next", 1)
+        future = parse_box('"bbox_2d' + after[1]) if len(after) == 2 else None
+        if future is not None:
+            line += next_box_text(future)
+        return line, dict(now=found, next=future)
 
     def predict(image, proprio, instruction):
         metres = [proprio[0] / 100, proprio[1] / 100, proprio[2] / 100, proprio[3]]
