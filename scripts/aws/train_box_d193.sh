@@ -35,7 +35,9 @@ unpack || finish
 aws s3 cp $S3/d170/requirements_g5.txt /home/ubuntu/requirements_g5.txt
 $PY -m pip install -q $(grep -iE '^(transformers|peft|accelerate)==' /home/ubuntu/requirements_g5.txt) huggingface_hub
 $PY -c "from huggingface_hub import snapshot_download as d; d('Qwen/Qwen3-VL-4B-Instruct', local_dir='$QWEN_MODEL')" || finish
-aws s3 cp $S3/d170/store.tar - | tar -x -C $D || finish
+# the store tar has no top folder (episodes.jsonl, frames/ at its root)
+mkdir -p $STORE
+[ -f $STORE/episodes.jsonl ] || aws s3 cp $S3/d170/store.tar - | tar -x -C $STORE || finish
 ls $D; wc -l $STORE/episodes.jsonl || finish
 aws s3 sync $S3/d190/dagger_r2_adapter/ $D/start_adapter/ --quiet
 df -h $D | tail -1
