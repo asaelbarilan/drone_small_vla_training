@@ -883,3 +883,19 @@ deep-learning AMI; training waits for d193/go.txt.
   machine (Session Manager). scripts/aws/train_only_d193.sh restarted training 14:17 UTC, same
   flags + --wandb-project "vla training": run box_d193
   (https://wandb.ai/asael/vla%20training/runs/box_d193). Ends about 00:30 UTC, then S3 + machine off.
+
+## D193 result (2026-10-06): training done; the model writes boxes but not grounded ones
+Run complete (4,000 updates, adapter s3://.../d193/run/adapter_s4000, machine off). Move-token
+accuracy kept: real 54.4 % / 75.5 % within 1 bin, sim 91.7 % / 94.1 % (start 53.5 / 90.2);
+sim held-out loss 1.71 -> 0.49 (box lines learned as a format). Local test on the 12 Turn
+validation start photos (as the evaluator sends them, and in normal colours - same result):
+- own box: nearly the same box every time (around the image centre) - the average again, now in
+  box form; first turn within 10 deg: 6/12 (old model 4/12).
+- base Qwen (adapter off) writes the box, our adapter continues: its next box (dream) moves the
+  person toward the centre correctly (left target -> next box right of it, and vice versa), but the
+  Left line still says about -18 deg on almost every task: 5/12 within 10 deg.
+- turn computed straight from the base box's centre column (atan of the offset, 90 deg FOV):
+  right direction 11/11, within 10 deg 7/11 (one photo without a box).
+Reading: grounding exists in the base model and the adapter can use a given box for the next box,
+but the progress line / moves still follow the text prior. Candidate fix without training: for
+"turn/face toward <object>" set the goal's yaw from the base box (server rule), then validate.
