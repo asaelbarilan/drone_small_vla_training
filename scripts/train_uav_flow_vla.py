@@ -165,6 +165,11 @@ def next_box_text(box):
     return '{"bbox_2d_next": [' + ", ".join(str(int(v)) for v in box) + "]}\n"
 
 
+# D201: set by main() / the server when the adapter has a continuous action head
+# (action_head.py); then the 8 moves are K slot tokens read by the head, not 32 bin tokens.
+ACTION_HEAD = dict(on=False)
+
+
 def box_text(box):
     """D193 box-first: the target's box in Qwen's native JSON (0-1000 image frame), written
     before the progress line; an empty list when the instruction names no visible object."""
@@ -358,14 +363,30 @@ def encode(processor, tokenizer, row, k, gray=False, with_answer=True, image=Non
         # policy's; the line is context, only the actions are scored.
         batch = append_ids(batch, progress)
         prompt_length, progress = batch["input_ids"].shape[1], []
+    head = ACTION_HEAD["on"]
+    slots = 0
     if row.get("grounding_only"):
         # D198 grounding examples: the answer is only the box line(s); no line, no moves.
         ids = [*box, processor.tokenizer.eos_token_id]
+    elif head:
+        # D201: the moves come from the action head reading k slot tokens after the line.
+        slots = k
+        ids = [*box, *progress, *([ACTION_HEAD["slot"]] * k)]
     else:
         ids = [*box, *progress, *tokenizer.token_ids(row["chunk"][:k]), processor.tokenizer.eos_token_id]
     batch = append_ids(batch, ids)
     labels = batch["input_ids"].clone()
     labels[:, :prompt_length] = -100
+    if head:
+        mask = torch.zeros_like(batch["input_ids"])
+        target = torch.zeros(1, k, tokenizer.channels)
+        if slots:
+            mask[:, -slots:] = 1
+            labels[:, -slots:] = -100
+            target[0] = torch.tensor(tokenizer.normalise(row["chunk"][:k]), dtype=torch.float32)
+        batch["slot_mask"] = mask
+        batch["action_target"] = target
+        batch["has_action"] = torch.tensor([1 if slots else 0])
     batch["labels"] = labels
     return batch
 
@@ -413,7 +434,7 @@ def append_ids(batch, ids):
 # Everything else in an encoded example (pixel_values, image_grid_thw, ...) is
 # per-image and concatenates as is.
 SEQUENCE_FILL = dict(
-    input_ids=None, attention_mask=0, labels=-100, mm_token_type_ids=0, token_type_ids=0
+    input_ids=None, attention_mask=0, labels=-100, mm_token_type_ids=0, token_type_ids=0, slot_mask=0
 )
 
 
@@ -577,6 +598,13 @@ def main():
         action="store_true",
         help="D194: after the box, also write the target's box K frames ahead (when labelled)",
     )
+    parser.add_argument(
+        "--action-head",
+        action="store_true",
+        help="D201: continuous action head (OpenVLA-OFT style, L1) instead of 32 action tokens",
+    )
+    parser.add_argument("--head-weight", type=float, default=1.0, help="D201: weight of the head's L1 loss")
+    parser.add_argument("--init-action-head", type=Path, help="D201: start the head from this action_head.pt")
     parser.add_argument(
         "--grounding-only",
         action="store_true",
@@ -841,18 +869,45 @@ def main():
         # to continue the real-data model on real + simulator flights.
         set_peft_model_state_dict(model, load_peft_weights(str(args.init_adapter)))
     params = [p for p in model.parameters() if p.requires_grad]
+    head = None
+    if args.action_head:
+        from action_head import ActionHead, slot_id
+        ACTION_HEAD.update(on=True, slot=slot_id(tokenizer))
+        hidden = model.config.get_text_config().hidden_size
+        head = (ActionHead.load(str(args.init_action_head), "cuda") if args.init_action_head
+                else ActionHead(hidden, tokenizer.channels).to("cuda"))
+        if main_rank:
+            print(json.dumps(dict(action_head_hidden=hidden, head_params=sum(p.numel() for p in head.parameters()))), flush=True)
+    head_params = list(head.parameters()) if head is not None else []
     if args.vision_lr_mult != 1.0:
         # D198: the vision tower's LoRA learns more slowly (lr_scale), so the flight training
         # cannot wash out what grounding taught it.
         visual = [p for n, p in model.named_parameters() if p.requires_grad and ".visual." in n]
         other = [p for n, p in model.named_parameters() if p.requires_grad and ".visual." not in n]
         optimiser = torch.optim.AdamW(
-            [dict(params=other, lr_scale=1.0), dict(params=visual, lr_scale=args.vision_lr_mult)], lr=args.lr
+            [dict(params=other + head_params, lr_scale=1.0), dict(params=visual, lr_scale=args.vision_lr_mult)], lr=args.lr
         )
         if main_rank:
             print(json.dumps(dict(vision_lora_tensors=len(visual), other_lora_tensors=len(other))), flush=True)
     else:
-        optimiser = torch.optim.AdamW(params, lr=args.lr)
+        optimiser = torch.optim.AdamW(params + head_params, lr=args.lr)
+    params = params + head_params
+
+    def forward(batch):
+        """Training / validation forward: (total loss, text loss, head L1, predictions, targets,
+        model output). Without the head it is the plain language-model loss."""
+        if head is None:
+            out = model(**batch)
+            return out.loss, out.loss, None, None, None, out
+        from action_head import slot_states
+        slot_mask, target, has = batch.pop("slot_mask"), batch.pop("action_target"), batch.pop("has_action")
+        out = model(**batch, output_hidden_states=True)
+        rows = has.bool()
+        if not rows.any():
+            return out.loss, out.loss, None, None, None, out
+        pred = head(slot_states(out, slot_mask, args.chunk))
+        l1 = (pred - target[rows].to(pred.device)).abs().mean()
+        return out.loss + args.head_weight * l1, out.loss, l1, pred, target[rows], out
 
     report = dict(
         status="running",
@@ -939,6 +994,8 @@ def main():
         if not main_rank:
             return
         core.save_pretrained(checkpoint)
+        if head is not None:
+            head.save(checkpoint / "action_head.pt")
         torch.save(
             dict(step=step, optimiser=optimiser.state_dict(), report=report),
             checkpoint / "state.pt.tmp",
@@ -946,6 +1003,8 @@ def main():
         os.replace(checkpoint / "state.pt.tmp", checkpoint / "state.pt")
         # Keep every checkpointed adapter so the best held-out point can be picked.
         core.save_pretrained(args.out / f"adapter_s{step}")
+        if head is not None:
+            head.save(args.out / f"adapter_s{step}" / "action_head.pt")
 
     pad_id = processor.tokenizer.pad_token_id
     loader = iter(
@@ -988,6 +1047,17 @@ def main():
         """Summed loss, teacher-forced answer-token hits (exact and within one
         bin, OpenVLA's accuracy measure), answer tokens, examples (D170)."""
         batch = api.cuda(batch)
+        if head is not None:
+            # D201: accuracy of the head's moves, binned exactly like the tokens were, so the
+            # numbers stay comparable with the token runs.
+            from action_head import bins_of
+            loss, _, _, pred, goal, _ = forward(batch)
+            count = batch["input_ids"].shape[0]
+            if pred is None:
+                return float(loss) * count, 0, 0, 0, count
+            got = bins_of(tokenizer, pred.float().cpu().numpy())
+            want = bins_of(tokenizer, goal.float().cpu().numpy())
+            return float(loss) * count, int((got == want).sum()), int((abs(got - want) <= 1).sum()), int(want.size), count
         out = core(**batch)
         target = batch["labels"][:, 1:]
         guess = out.logits[:, :-1].argmax(-1)
@@ -1030,8 +1100,7 @@ def main():
             last = micro == args.accum - 1
             sync = contextlib.nullcontext() if world == 1 or last else model.no_sync()
             with sync:
-                output = model(**api.cuda(next(loader)))
-                loss = output.loss / args.accum
+                loss = forward(api.cuda(next(loader)))[0] / args.accum
                 assert torch.isfinite(loss), "non-finite loss"
                 loss.backward()
             total += float(loss)
@@ -1116,6 +1185,8 @@ def main():
                 report["best_loss"], report["best_step"], report["no_gain"] = watched, step, 0
                 if main_rank and step > 1:
                     core.save_pretrained(args.out / "adapter_best")
+                    if head is not None:
+                        head.save(args.out / "adapter_best" / "action_head.pt")
             else:
                 report["no_gain"] = report.get("no_gain", 0) + 1
             if args.early_stop_patience and report["no_gain"] >= args.early_stop_patience:
@@ -1152,6 +1223,8 @@ def main():
     report["peak_allocated_gib"] = round(torch.cuda.max_memory_allocated() / 2**30, 3)
     if main_rank:
         core.save_pretrained(args.out / f"adapter_s{step}")
+        if head is not None:
+            head.save(args.out / f"adapter_s{step}" / "action_head.pt")
         save()
         print(json.dumps(dict(first_loss=report["losses"][0], last_loss=report["losses"][-1])))
     if run:

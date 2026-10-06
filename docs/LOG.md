@@ -957,3 +957,15 @@ are the weakest design; Qwen-VLA (Qwen3.5-4B + 1.15B DiT) and FLIGHT (UAV, Qwen2
 use separate heads. Recommendation: an OFT-style MLP head (~10 MB, L1, all 8 moves in one pass)
 in stage 2; box and Left lines stay text (goal memory / deadband); stage 1 unchanged. 8 GB still
 fits (one VLM + tiny head) but deployment needs hidden states from llama.cpp, not text only.
+
+## D201 (2026-10-06): continuous action head built (code, local smoke only)
+scripts/action_head.py: OpenVLA-OFT-style head - LayerNorm + 4-layer MLP (2560 -> 1024 -> 1024 ->
+1024 -> 4, 4.7M parameters, ~19 MB) on the last hidden states of k=8 slot tokens appended after
+the box / progress lines; tanh output in the tokenizer's normalised range; L1 loss. Deviation from
+OFT: slots attend causally (Qwen3-VL attention / M-RoPE untouched). Slot token = the middle
+action-bin id. Trainer --action-head (--head-weight, --init-action-head): total loss = text loss
+(box + line tokens) + weight x L1; validation accuracy bins the head's moves exactly like tokens
+(comparable with old runs); action_head.pt saved next to every adapter. Server: if the adapter
+folder has action_head.pt, the moves come from one forward pass (no 32-token generation).
+Local smoke (NF4, 3 updates from the stage-1 smoke adapter, 1:10 grounding mix, vision 0.1x):
+loss 4.22 -> 2.44, validation ran, head saved; the server loaded it and returned 8 moves.

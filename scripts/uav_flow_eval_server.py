@@ -142,6 +142,15 @@ def qwen_loader(
     model = PeftModel.from_pretrained(base, adapter)
     model.eval()
     low, high = tokenizer.vocab_size - tokenizer.n_bins, tokenizer.vocab_size
+    # D201: an adapter trained with --action-head carries action_head.pt; its moves come from
+    # one forward pass over k slot tokens, not from 32 generated action tokens.
+    from pathlib import Path as _Path
+    from action_head import HEAD_FILE, ActionHead, slot_id, slot_states
+    head = None
+    if (_Path(adapter) / HEAD_FILE).exists():
+        head = ActionHead.load(str(_Path(adapter) / HEAD_FILE), "cuda").eval()
+        head_slot = slot_id(tokenizer)
+        print(f"action head loaded: {_Path(adapter) / HEAD_FILE}", flush=True)
 
     class ActionTokensOnly(LogitsProcessor):
         def __call__(self, input_ids, scores):
@@ -250,6 +259,16 @@ def qwen_loader(
             if text is not None:  # malformed line: answer without one
                 row["progress_text"] = text
         batch = encode(processor, tokenizer, row, chunk, with_answer=False, image=image)
+        if head is not None:
+            # D201: k slot tokens after the box / progress lines, one pass, the head reads them.
+            batch = append_ids(batch, [head_slot] * chunk)
+            mask = torch.zeros_like(batch["input_ids"])
+            mask[:, -chunk:] = 1
+            with torch.inference_mode():
+                out = model(**api.cuda(batch), output_hidden_states=True)
+                normalised = head(slot_states(out, mask.to(out.hidden_states[-1].device), chunk))[0]
+            steps = tokenizer.denormalise(normalised.float().cpu().numpy())
+            return [np.array([dx * 100, dy * 100, dz * 100, dyaw]) for dx, dy, dz, dyaw in steps]
         with torch.inference_mode():
             if contrast:
                 gray = Image.new("RGB", image.size, (127, 127, 127))
