@@ -899,3 +899,14 @@ validation start photos (as the evaluator sends them, and in normal colours - sa
 Reading: grounding exists in the base model and the adapter can use a given box for the next box,
 but the progress line / moves still follow the text prior. Candidate fix without training: for
 "turn/face toward <object>" set the goal's yaw from the base box (server rule), then validate.
+
+## D195 (2026-10-06): research - how to make the model ground the target itself (NO CODE CHANGED)
+docs/research/VLA_FIX_GROUNDING_20261006.md. Our labels: 68 % of simulator boxes sit within
+100/1000 of the image centre (the drone flies toward the target), so an average box is "almost
+right"; the box loss went flat at update 500 (format learned, grounding never) and our validation
+counted only move tokens. Field: ST4VLA (Qwen2.5-VL) shows exactly this - action-only training
+destroys grounding, plain co-training only partly keeps it; staged grounding-first training then
+spatially guided action training gives +18 pts. Ranked: (1) measure generated-box error and
+line-vs-box consistency during training; (2) balanced box data + box-token loss weight, continued
+training (~$10-15), stop early if grounding does not move; (3) staged retrain ST4VLA-style if not.
+User ruled out a second model / base-Qwen box at inference.
