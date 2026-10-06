@@ -358,7 +358,11 @@ def encode(processor, tokenizer, row, k, gray=False, with_answer=True, image=Non
         # policy's; the line is context, only the actions are scored.
         batch = append_ids(batch, progress)
         prompt_length, progress = batch["input_ids"].shape[1], []
-    ids = [*box, *progress, *tokenizer.token_ids(row["chunk"][:k]), processor.tokenizer.eos_token_id]
+    if row.get("grounding_only"):
+        # D198 grounding examples: the answer is only the box line(s); no line, no moves.
+        ids = [*box, processor.tokenizer.eos_token_id]
+    else:
+        ids = [*box, *progress, *tokenizer.token_ids(row["chunk"][:k]), processor.tokenizer.eos_token_id]
     batch = append_ids(batch, ids)
     labels = batch["input_ids"].clone()
     labels[:, :prompt_length] = -100
@@ -574,6 +578,37 @@ def main():
         help="D194: after the box, also write the target's box K frames ahead (when labelled)",
     )
     parser.add_argument(
+        "--grounding-only",
+        action="store_true",
+        help="D198 stage 1: train only box answers (box + next box), balanced left/centre/right",
+    )
+    parser.add_argument(
+        "--grounding-mix",
+        type=float,
+        default=0.0,
+        help="D198 stage 2: add box-only examples, this many per flight example (ST4VLA best: 0.1)",
+    )
+    parser.add_argument(
+        "--sim-share",
+        type=float,
+        default=0.0,
+        help="D198: subsample real-flight rows so simulator rows are this share of the flight rows",
+    )
+    parser.add_argument(
+        "--vision-lr-mult",
+        type=float,
+        default=1.0,
+        help="D198: learning-rate factor for the vision tower's LoRA (ST4VLA damps the action "
+        "gradient into the VLM so action training does not erase grounding)",
+    )
+    parser.add_argument(
+        "--box-val",
+        type=int,
+        default=0,
+        help="D198: at every validation, let the model WRITE boxes on this many held-out simulator "
+        "rows (balanced) and report centre error, IoU, spread ratio (box_eval.py)",
+    )
+    parser.add_argument(
         "--box-repeat",
         type=int,
         default=1,
@@ -723,6 +758,24 @@ def main():
         if main_rank:
             nexts = sum(1 for r in train if "next_box" in r)
             print(json.dumps(dict(box_labels=len(labels), rows_with_box=boxed, rows_with_next_box=nexts, box_repeats_added=len(extra_boxed))), flush=True)
+    if args.sim_share:
+        # D198: the simulator is the test domain; keep all simulator rows, subsample the real ones.
+        sim_rows = [r for r in train if str(r.get("episode", "")).startswith("sim_")]
+        real_rows = [r for r in train if not str(r.get("episode", "")).startswith("sim_")]
+        keep = round(len(sim_rows) * (1 - args.sim_share) / args.sim_share)
+        if sim_rows and keep < len(real_rows):
+            real_rows = random.Random(11).sample(real_rows, keep)
+        train = sim_rows + real_rows
+        if main_rank:
+            print(json.dumps(dict(sim_rows=len(sim_rows), real_rows=len(real_rows))), flush=True)
+    if args.grounding_only or args.grounding_mix:
+        from box_eval import balanced_sample
+        pool = list({r["id"]: r for r in train if "box" in r}.values())
+        size = len(pool) if args.grounding_only else round(args.grounding_mix * len(train))
+        grounding = [{**r, "grounding_only": True} for r in balanced_sample(pool, size)]
+        train = grounding if args.grounding_only else train + grounding
+        if main_rank:
+            print(json.dumps(dict(grounding_examples=len(grounding), train_examples=len(train))), flush=True)
     for path in args.extra_rows:
         extra = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
         train += extra * args.extra_repeat
@@ -735,6 +788,11 @@ def main():
     assert train and held, "need full-length chunks on both sides"
     # A fixed held-out sample, so every point on the curve is the same examples.
     held = random.Random(9).sample(held, min(args.val_batches, len(held)))
+    box_val_rows = []
+    if args.box_val:
+        # D198: fixed, balanced held-out simulator rows with a box label for the written-box checks
+        from box_eval import balanced_box_rows
+        box_val_rows = balanced_box_rows([r for r in sim_held if "box" in r], args.box_val)
     sim_held = random.Random(9).sample(sim_held, min(args.sim_val_examples, len(sim_held)))
     per_update = args.batch_size * args.accum * world
     if args.epochs:
@@ -783,7 +841,18 @@ def main():
         # to continue the real-data model on real + simulator flights.
         set_peft_model_state_dict(model, load_peft_weights(str(args.init_adapter)))
     params = [p for p in model.parameters() if p.requires_grad]
-    optimiser = torch.optim.AdamW(params, lr=args.lr)
+    if args.vision_lr_mult != 1.0:
+        # D198: the vision tower's LoRA learns more slowly (lr_scale), so the flight training
+        # cannot wash out what grounding taught it.
+        visual = [p for n, p in model.named_parameters() if p.requires_grad and ".visual." in n]
+        other = [p for n, p in model.named_parameters() if p.requires_grad and ".visual." not in n]
+        optimiser = torch.optim.AdamW(
+            [dict(params=other, lr_scale=1.0), dict(params=visual, lr_scale=args.vision_lr_mult)], lr=args.lr
+        )
+        if main_rank:
+            print(json.dumps(dict(vision_lora_tensors=len(visual), other_lora_tensors=len(other))), flush=True)
+    else:
+        optimiser = torch.optim.AdamW(params, lr=args.lr)
 
     report = dict(
         status="running",
@@ -954,7 +1023,7 @@ def main():
         total = 0.0
         tick = time.monotonic()
         for group in optimiser.param_groups:
-            group["lr"] = learning_rate(args, step, report)
+            group["lr"] = learning_rate(args, step, report) * group.get("lr_scale", 1.0)
         optimiser.zero_grad(set_to_none=True)
         for micro in range(args.accum):
             # Gradients only need averaging across GPUs on the last micro-batch.
@@ -1004,6 +1073,15 @@ def main():
                 logged["held_out_token_acc_1bin_sim"] = entry["sim_token_acc_1bin"]
                 logged |= {f"sim_val/{k}": v for k, v in entry["sim_by_kind"].items()}
                 logged |= {f"sim_acc/{k}": v for k, v in entry["sim_acc_by_kind"].items()}
+            if box_val_rows and main_rank:
+                from box_eval import evaluate_boxes
+                core.eval()
+                boxes = evaluate_boxes(core, processor, tokenizer, box_val_rows, args.chunk, api.cuda,
+                                       want_line=not args.grounding_only)
+                core.train()
+                entry["box_eval"] = boxes
+                logged |= {f"box/{k}": v for k, v in boxes.items() if v is not None}
+                print(json.dumps(dict(step=step, box_eval=boxes)), flush=True)
             report["held_out"].append(entry)
             if args.schedule == "wsd" and report.get("decay_from") is None:
                 # D177: with --plateau-sim the simulator accuracy counts too, so the

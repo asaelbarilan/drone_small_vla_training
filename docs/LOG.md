@@ -925,3 +925,19 @@ spatial pre-training add (61.1 -> 67.4 -> 73.2). VLANeXt: temporal history hurt 
 out), state in the VLM helps (we do), bin-token actions are the weakest design (deployment
 trade-off, user decision, not in this retrain). Fold into D196: many more stage-1 labels,
 1:10 mixing in stage 2, no 3x box repeat, slower vision learning rate.
+
+## D198 (2026-10-06): step 0 of the staged retrain - code + checks (local, $0)
+- scripts/box_eval.py: lets the model WRITE its box on held-out rows and scores it: centre error,
+  IoU, spread ratio, x correlation with the label, the error of a dumb "always the centre" box
+  (baseline), empty-box accuracy, next-box error, Turn line-vs-box consistency; balanced row
+  pickers (left / centre / right / empty).
+- Trainer: --grounding-only (stage 1: answer = box + next box only, balanced), --grounding-mix
+  (stage 2: box-only examples per flight example, ST4VLA 1:10), --sim-share (simulator share of
+  flight rows), --vision-lr-mult (slower vision LoRA), --box-val N (written-box checks at every
+  validation, logged to wandb as box/*).
+- Gate passed - the check flags the D193 model on 60 held-out simulator photos (balanced):
+  x correlation -0.02 (boxes do not follow the target at all), centre error 265 vs 251 for the
+  always-centre box, IoU 0.19; spread ratio 0.98 (spread alone would have missed it).
+- Local smoke tests (NF4, local 1-shard store, 24 local labels): stage 1 (3 updates, loss 2.11 ->
+  1.60, 48 balanced box examples, vision LoRA 208 tensors at 0.1x); stage 2 from that adapter
+  (5,010 box-only + 50,106 flight examples = 1:10, photo aug, loss 8.2 -> 5.5).
