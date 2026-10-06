@@ -969,3 +969,24 @@ action-bin id. Trainer --action-head (--head-weight, --init-action-head): total 
 folder has action_head.pt, the moves come from one forward pass (no 32-token generation).
 Local smoke (NF4, 3 updates from the stage-1 smoke adapter, 1:10 grounding mix, vision 0.1x):
 loss 4.22 -> 2.44, validation ran, head saved; the server loaded it and returned 8 moves.
+
+## D199 progress (2026-10-06): step-1 box checks (120 balanced held-out simulator rows)
+| Update | centre error | always-centre | IoU | x_corr | next-box error | empty correct |
+|---|---|---|---|---|---|---|
+| 1 (base) | 117 | 254 | 0.29 | 0.848 | - | 0.64 |
+| 250 | 61 | 265 | 0.61 | 0.864 | 118 | 0.90 |
+| 500 | 87 | 265 | 0.60 | 0.713 | 142 | 0.90 |
+| 750 | 59 | 265 | 0.65 | 0.844 | 126 | 0.90 |
+Gate passed (x_corr >> 0, error far below always-centre). The wandb sim_acc/* curves fall during
+step 1 (0.25-0.45 -> 0.12-0.25): they score the 8 move tokens, which step 1 never trains (box-only
+answers end after the box); expected, not a bug. sim_acc/Pass = 0: no Pass rows in that set.
+
+## D202 (2026-10-06): step 2 pipeline - flying on top of the boxes (user-approved "ok")
+scripts/aws/train_stage2_d202.sh on i-05f21d6200f5c1045 (g5.2xlarge) after step 1 stops it.
+From d199/stage1/adapter_s1000; full answer box + next box (labelled photos, x3) + Left line +
+8 moves from the D201 action head (L1, weight 1). 1 box-only example per 10 flight examples,
+simulator = half of the flight rows (all 54 real shards in the store), DAgger rows rounds 1+2
+(x20), mirror, photo-aug, both wordings, vision LoRA at 0.1x. 20-update smoke, then 8,000
+updates lr 2e-4 cosine (3 % warmup); validation (move accuracy + box/*) and adapters every 1,000
+to s3://.../d202/stage2/; wandb "vla training" / stage2_d202; machine off at the end (28 h hard
+stop). About 20 h, about $25. Gate at every 1,000: move accuracy rising AND box/* not falling.
