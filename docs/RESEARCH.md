@@ -419,6 +419,69 @@ Pass 32, Approach/Move 25, Turn/Rotate 20, Retreat 3, other 92.
 
 All phases use batch 32 (8 x 4 accumulation). Total: about 38,700 updates.
 
+**29b. All training so far, in words (and what is planned).**
+
+The model is always the same: Qwen3-VL-4B-Instruct with one LoRA adapter (rank 32, on every
+linear layer, vision included). Input: one photo, the drone's state and the instruction.
+Everything it learns is written as text tokens after the input.
+
+What the answer looks like has grown over time:
+- phases 0-3: 8 moves only (32 action tokens);
+- phases 4-5 and DAgger: the progress line `Left +FF.F,+SS.S,+UU.U,+YYY` (what is left to the
+  flight's end), then the 8 moves;
+- D193: the target's box, then the box after the moves, then the line, then the moves.
+
+The trained runs:
+1. **Phase 0 (D159-D160).** 10 real shards, mirror copies, both instruction wordings.
+   2,500 updates, learning rate 5e-4. Moves only.
+2. **Phase 1 (D165).** Adds 9,941 simulator flights. 2,000 updates, learning rate 2e-4.
+3. **Phase 2 (D169).** 504 simulator flights held out for validation. About 2,700 updates at
+   5e-5, early stop.
+4. **Phase 3 (D171).** All 54 real shards plus the simulator flights. 18,000 updates,
+   learning rate 5e-4, cosine. Result: adapter s18000, 52 % on test.
+5. **Phase 4 (D176-D177).** The progress line is added before the moves. Steady learning
+   rate 1.142e-4 to update 28,000, stopped when accuracy went flat.
+6. **Phase 5 (D179).** Decay to 0, ending at update 31,000. Result: adapter s31000, the main
+   model (61 % on test).
+7. **DAgger round 1 (D188).** The model flew 50 Land/Pass practice tasks. Every state it
+   visited was relabelled from the recorded flight (true line + 8 moves back onto the path):
+   394 examples. 300 updates at 2e-5, mixed with the expert flights of 200 practice tasks.
+   Validation Land + Pass 61.6 -> 74.0 %.
+8. **DAgger round 2 (D190).** 150 new practice tasks: 50 Land, 75 Turn and 25 Surround (with
+   the dog / person placed, D189). 934 new examples plus round 1's. 300 updates. Validation
+   67 -> 69 %, not significant; Turn unchanged.
+9. **Box-first + imagination (D193-D194).** Starts from round 2.
+   - Answer: target box, then the box after the 8 moves ("imagination": where the target will
+     be), then the line, then the moves.
+   - Boxes labelled by the base Qwen on 81k photos; boxed rows repeated 3x.
+   - Photo augmentation (red/blue swap, 224 px), so photos look like what the evaluator sends.
+   - DAgger examples repeated 20x.
+   - 4,000 updates at 1e-4, cosine.
+   - Result: moves kept, but the box is the same "average" box on every photo, and the line
+     ignores it (D195).
+
+Not trained, used only when flying (server rules):
+- **Goal memory (D175):** the first line fixes a goal; later calls get the line recomputed
+  from the drone's position.
+- **Deadband (D182):** within 1 m and 5 deg the line becomes 0, so the drone stops.
+- **Action-token-only greedy decoding (D191).**
+- **Box phase (D193, `--box`):** the model writes its boxes first, then the line and moves.
+
+Planned (D196, ST4VLA order: grounding first, then actions on top):
+- **Stage 1, about 2,500 updates.** A fresh LoRA from the base model learns only the boxes:
+  the target box and the imagined box after the moves. Labels are balanced so left, centre and
+  right targets are equally common.
+- **Stage 2, about 15,000-20,000 updates.** The same LoRA learns the full answer: box,
+  imagined box, line, moves. It keeps mirror copies, both wordings, photo augmentation and the
+  DAgger examples. The vision part trains about 10x slower, so the flying cannot erase the
+  grounding.
+- **When flying:** goal memory and the deadband stay as they are. The difference is that the
+  first line, which goal memory locks in, should now come from a real box.
+
+What is new compared with what we have done: the order (boxes alone first), the balanced boxes,
+the slower vision part, and a check that lets the model write boxes during validation.
+Everything else is reused.
+
 **30. Schedule decisions.**
 - Loss is a poor gauge, so stopping uses token accuracy (D169, D170).
 - The run did not stop at a fixed count while accuracy still rose (D176).
