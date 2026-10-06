@@ -27,6 +27,22 @@ Total about $50-60. Stop rules: stage 1 grounding not clearly better than D193 -
 before stage 2; stage 2 box metrics falling for 2 checks in a row -> lower the action weight / vision
 learning rate before continuing.
 
+### D196 plan, REVISED after D197 (2026-10-06) - this is the current one
+
+The base Qwen3-VL-4B already finds our targets (8/8), so stage 1 only has to keep that alive in
+our answer format and teach the "box after the moves"; no extra labelling (ST4VLA needed millions
+of labels mainly for points / trajectories its base could not do).
+
+| Stage | What is trained | Data / mix | Size / cost | Gate before the next stage |
+|---|---|---|---|---|
+| 0. Code + checks | grounding-only mode; mixing sampler (box-only : flight examples, and simulator : real); slower learning rate for the vision part; validation where the model WRITES the box (centre error, IoU, "same box everywhere" check) and Turn line-vs-box consistency | - | $0, local | the checks flag the D193 model as failing (one average box) |
+| 1. Boxes first | fresh LoRA on the base model; answer = box + box after the moves; no moves | the 81k labelled photos, balanced left / centre / right | ~1,000 steps, ~1.5 h, ~$2 | written boxes follow the target (not one average box), next box moves the right way |
+| 2. Flying on top | continue that LoRA; full answer: box + next box + Left line + 8 moves (box only on labelled photos) | ~1 box-only example per 10 flight examples; flight examples about half simulator / half real (all 54 real shards available); DAgger examples; mirror; colour / 224 px augmentation; vision part at ~10x lower learning rate | ~8,000 steps, ~20 h, ~$20 | every 1,000 steps: move accuracy rising toward 54 % real / 91.7 % sim AND box checks not falling |
+| 3. Validation flights | Windows box, fixed server (D191) with --box, goal memory + deadband as now | 100-task validation check set | ~2 h, ~$3 | Turn / Pass up, other kinds not down (rule 1) |
+| 4. DAgger with the new model | 1-2 rounds, only if 3 shows the model now uses the photo | practice tasks incl. Turn / Surround | ~$6 per round | validation again |
+
+About $25-35 in total.
+
 ### D193 checklist - what every run must keep (user, 2026-10-05: "insert what we have learned so we don't forget")
 
 | # | Lesson | Where it lives |
