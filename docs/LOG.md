@@ -992,3 +992,8 @@ updates lr 2e-4 cosine (3 % warmup); validation (move accuracy + box/*) and adap
 to s3://.../d202/stage2/; wandb "vla training" / stage2_d202; machine off at the end (28 h hard
 stop). About 20 h, about $25. Gate at every 1,000: move accuracy rising AND box/* not falling.
 Started 17:32 UTC 2026-10-06 (setup OK: peft 0.21.0, transformers 5.17.0, wandb 0.30.0).
+Try 1 failed at the smoke: the code zip held only scripts/ (missing reports/.../manifest.json);
+machine stopped itself (~1 h). Try 2 (zip = scripts + reports + release) 18:30 UTC: smoke passed
+(loss 2.39 -> 0.47 in 20 updates; box checks kept: centre error 61, x_corr 0.87). Training from
+19:07 UTC, 7.5 s/update (~17 h). Data: 1.32M sim + 1.32M real flight rows, 264k box-only rows,
+DAgger 1,328 x 20; head 4.73M parameters. Update 1 box checks: error 55, IoU 0.66, x_corr 0.86.
