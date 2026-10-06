@@ -13,3 +13,4 @@ PDFs are local only (`*.pdf` is gitignored); links in `docs/research/VLA_VISUAL_
 - `2026_GroundingSFT_why-grounding-hurts-medical-vqa.pdf` - 2604.27720: answer-only SFT removes box output; mixed grounding supervision restores it. Took: our D192 observation is a known effect.
 - `2026_BeTTER_illusion-of-embodied-reasoning.pdf` - 2604.18000: VLA reasoning does not drive actions under interventions (shortcuts). Took: test line-vs-box consistency.
 - `2026_VLAfaithfulness_chain-of-causation-driving.pdf` - 2605.17268: reasoning-action consistency 53 % in a driving VLA. Took: measure consistency explicitly.
+- `2026_VLANeXt_systematic-vla-recipes.pdf` - VLANeXt (2602.18532): 500 controlled experiments from a bin-token RT-2 baseline (19.8) to 93.1 on LIBERO-Spatial; temporal history hurt (50), proprioception into the VLM helped, world modelling helped but tripled training time. Took: no history frames; our bin-token output is their weakest design (deployment trade-off).

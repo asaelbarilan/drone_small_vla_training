@@ -915,3 +915,13 @@ User ruled out a second model / base-Qwen box at inference.
 User chose the evidence-backed staged retrain over continuing D193. Stage 0 code + metrics ($0),
 stage 1 grounding-only LoRA from the base model (~$5), stage 2 actions on top with the box kept and
 a lower vision learning rate (~$40-50), stage 3 validation flights (~$3). Total ~$50-60.
+
+## D197 (2026-10-06): research - more lessons before the staged retrain (NO CODE CHANGED)
+docs/research/VLA_STAGED_RECIPE_LESSONS_20261006.md. ST4VLA appendix: best grounding:action loss
+ratio in stage 2 is 1:10 (1:1 drops WidowX 71.7 -> 47.2; D193 had box lines on ~42 % of rows);
+grounding pre-training pays off only from ~2M pairs (0.5M/1M: no gain) and robot-domain labels
+beat general ones - our 81k labels are far too few for stage 1; both spatial prompting and
+spatial pre-training add (61.1 -> 67.4 -> 73.2). VLANeXt: temporal history hurt (we leave it
+out), state in the VLM helps (we do), bin-token actions are the weakest design (deployment
+trade-off, user decision, not in this retrain). Fold into D196: many more stage-1 labels,
+1:10 mixing in stage 2, no 3x box repeat, slower vision learning rate.
