@@ -637,6 +637,21 @@ task are on S3 and in `D:/drone_vla_pilot/runs/`. MISSING: chosen figures.
 Land 13 -> 15/15, Pass 8 -> 9/15, Rotate 10 -> 9/10, Turn 4/12 and Surround 2/10 unchanged, others equal.
 No clear gain; Turn did not learn from 75 Turn practice tasks.
 
+**51d. Staged retrain plan (D196-D198, current).** D193 taught the box FORMAT but not grounding:
+on 60 held-out simulator photos its written box has x correlation -0.02 with the target and a
+centre error of 265, worse than an "always the centre" box (251). ST4VLA (2602.10109) shows
+action-only training erases grounding and co-training afterwards only partly restores it; the fix
+is grounding first, then actions. Our base Qwen3-VL-4B already finds our targets, so stage 1 is
+short and uses our 81k labels (no extra labelling).
+
+| Step | What | Data / mix | Size / cost | Gate |
+|---|---|---|---|---|
+| 0 | code + checks (box_eval.py; trainer --grounding-only, --grounding-mix, --sim-share, --vision-lr-mult, --box-val) | - | done, $0 | the check flags D193 as failing - passed |
+| 1 | fresh LoRA on the base model, answer = box now + box after the moves, no moves | 81k labelled photos, balanced left / centre / right / empty (30/30/30/10) | ~1,000 updates, ~2 h incl. setup, ~$3 | written boxes follow the target: x correlation clearly > 0 and centre error below the always-centre baseline |
+| 2 | continue that LoRA: box + next box + Left line + 8 moves | 1 box-only example per 10 flight examples; flight examples half simulator / half real; DAgger rows; mirror; colour + 224 px augmentation; vision LoRA at 0.1x learning rate | ~8,000 updates, ~20 h, ~$20 | every 1,000 updates: move accuracy toward 54 % real / 91.7 % sim and box checks not falling |
+| 3 | validation flights, fixed server (D191) with --box, goal memory + deadband | 100-task validation check set | ~2 h, ~$3 | Turn / Pass up, other kinds not down |
+| 4 | DAgger rounds with the new model | practice tasks incl. Turn / Surround | ~$6 per round | validation again |
+
 **52. PPO.**
 - Value head on the layer-normalised last hidden state; GAE with gamma 0.99, lambda
   0.95; reward = call_gain plus the flight reward on the last call; clip 0.05.
