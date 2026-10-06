@@ -949,3 +949,11 @@ g5.2xlarge / A10G; wandb login and packages kept). Fresh LoRA on the base model,
 cosine, written-box checks on 120 balanced held-out simulator rows every 250 updates (wandb box/*),
 adapters every 250 to s3://.../d199/stage1/, machine off at the end (5 h hard stop).
 Gate for step 2: box/box_x_corr clearly > 0 and box/box_centre_err < box/centre_err_const.
+
+## D200 (2026-10-06): research - action head instead of action tokens (NO CODE CHANGED)
+docs/research/VLA_ACTION_HEAD_20261006.md, papers/action_heads/. OpenVLA-OFT: bin tokens 76.5 % ->
+parallel chunk decoding 90.2 % -> continuous L1 MLP head 95.3 % (26x faster); VLANeXt: bin tokens
+are the weakest design; Qwen-VLA (Qwen3.5-4B + 1.15B DiT) and FLIGHT (UAV, Qwen2.5-VL-3B + DiT-B)
+use separate heads. Recommendation: an OFT-style MLP head (~10 MB, L1, all 8 moves in one pass)
+in stage 2; box and Left lines stay text (goal memory / deadband); stage 1 unchanged. 8 GB still
+fits (one VLM + tiny head) but deployment needs hidden states from llama.cpp, not text only.
