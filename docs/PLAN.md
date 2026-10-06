@@ -10,6 +10,23 @@
 > decoding restricted to action tokens). D190 itself keeps the old server so its before / after
 > stay comparable; the next run re-measures the D190 models with the fixed server first.
 
+### D196 plan - staged retrain so the model finds the target itself (user, 2026-10-06; ST4VLA recipe)
+
+Why: D193 co-training taught the box FORMAT, not grounding (same box every photo; the Left line
+ignores even a correct box). ST4VLA (2602.10109) shows the order matters: grounding first, then
+actions on top - plain co-training after action training only partly works.
+
+| Stage | What is trained | Data | Updates / time / cost | Must show before going on |
+|---|---|---|---|---|
+| 0. Build + measure | trainer: grounding-only mode, balanced box sampling, box-token loss weight, lower learning rate for the vision part, and a validation that lets the model WRITE the box (centre error, IoU) | - | code, local checks, $0 | the new metrics reproduce D193's failure on the D193 model (same box every time) |
+| 1. Grounding first | fresh LoRA on the base Qwen3-VL-4B: answer = target box + box after the moves, no moves | our 81k labelled frames (simulator + real), balanced so off-centre targets are as common as centred ones; validation = the 504 held-out simulator flights | about 2,000-3,000 updates, about 3 h on one L4, about $5 | written boxes close to the labels (IoU near the base model's own), and NOT one average box |
+| 2. Actions on top | continue the stage-1 LoRA: answer = box + next box + Left line + 8 moves (box kept wherever labelled), DAgger rows, mirror, photo augmentation; vision part at a lower learning rate so the action training cannot erase the grounding (ST4VLA damps that gradient x0.5) | full real + simulator store | about 15,000-20,000 updates, 40-50 h on one L4, about $40-50 | every 1,000 updates: move accuracy climbing toward the old 54 % real / 91.7 % sim, AND box metrics not falling |
+| 3. Validation flights | Windows box, fixed server (D191) with --box | the 100-task validation check set | about 2 h, about $3 | Turn / Pass better than 4/12 and 9/15 without losing other kinds (rule 1: no test tasks) |
+
+Total about $50-60. Stop rules: stage 1 grounding not clearly better than D193 -> stop and rethink
+before stage 2; stage 2 box metrics falling for 2 checks in a row -> lower the action weight / vision
+learning rate before continuing.
+
 ### D193 checklist - what every run must keep (user, 2026-10-05: "insert what we have learned so we don't forget")
 
 | # | Lesson | Where it lives |

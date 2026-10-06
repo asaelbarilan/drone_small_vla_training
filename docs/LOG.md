@@ -910,3 +910,8 @@ spatially guided action training gives +18 pts. Ranked: (1) measure generated-bo
 line-vs-box consistency during training; (2) balanced box data + box-token loss weight, continued
 training (~$10-15), stop early if grounding does not move; (3) staged retrain ST4VLA-style if not.
 User ruled out a second model / base-Qwen box at inference.
+
+## D196 (2026-10-06): plan - staged retrain (user decision), written to docs/PLAN.md
+User chose the evidence-backed staged retrain over continuing D193. Stage 0 code + metrics ($0),
+stage 1 grounding-only LoRA from the base model (~$5), stage 2 actions on top with the box kept and
+a lower vision learning rate (~$40-50), stage 3 validation flights (~$3). Total ~$50-60.
