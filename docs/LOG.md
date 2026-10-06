@@ -977,6 +977,7 @@ loss 4.22 -> 2.44, validation ran, head saved; the server loaded it and returned
 | 250 | 61 | 265 | 0.61 | 0.864 | 118 | 0.90 |
 | 500 | 87 | 265 | 0.60 | 0.713 | 142 | 0.90 |
 | 750 | 59 | 265 | 0.65 | 0.844 | 126 | 0.90 |
+| 1000 (final, d199/stage1/adapter_s1000) | 55 | 265 | 0.66 | 0.857 | 127 | 0.90 |
 Gate passed (x_corr >> 0, error far below always-centre). The wandb sim_acc/* curves fall during
 step 1 (0.25-0.45 -> 0.12-0.25): they score the 8 move tokens, which step 1 never trains (box-only
 answers end after the box); expected, not a bug. sim_acc/Pass = 0: no Pass rows in that set.
@@ -990,3 +991,4 @@ simulator = half of the flight rows (all 54 real shards in the store), DAgger ro
 updates lr 2e-4 cosine (3 % warmup); validation (move accuracy + box/*) and adapters every 1,000
 to s3://.../d202/stage2/; wandb "vla training" / stage2_d202; machine off at the end (28 h hard
 stop). About 20 h, about $25. Gate at every 1,000: move accuracy rising AND box/* not falling.
+Started 17:32 UTC 2026-10-06 (setup OK: peft 0.21.0, transformers 5.17.0, wandb 0.30.0).
