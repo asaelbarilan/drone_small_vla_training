@@ -941,3 +941,11 @@ trade-off, user decision, not in this retrain). Fold into D196: many more stage-
 - Local smoke tests (NF4, local 1-shard store, 24 local labels): stage 1 (3 updates, loss 2.11 ->
   1.60, 48 balanced box examples, vision LoRA 208 tensors at 0.1x); stage 2 from that adapter
   (5,010 box-only + 50,106 flight examples = 1:10, photo aug, loss 8.2 -> 5.5).
+
+## D199 (2026-10-06 14:37 UTC): step 1 launched - boxes first (user-approved, ~$3)
+scripts/aws/train_stage1_d199.sh on i-05f21d6200f5c1045 (no g6 capacity in us-east-1c, switched to
+g5.2xlarge / A10G; wandb login and packages kept). Fresh LoRA on the base model, --grounding-only
+--next-box --photo-aug --mirror, 81k D193 labels balanced 30/30/30/10, 1,000 updates lr 2e-4
+cosine, written-box checks on 120 balanced held-out simulator rows every 250 updates (wandb box/*),
+adapters every 250 to s3://.../d199/stage1/, machine off at the end (5 h hard stop).
+Gate for step 2: box/box_x_corr clearly > 0 and box/box_centre_err < box/centre_err_const.
