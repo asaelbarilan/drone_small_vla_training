@@ -1108,3 +1108,7 @@ D204 restarted 21:27 UTC (still in setup) with adapters every 500 updates. Early
 GPU, no teacher forcing - the way the server answers) on adapter_s500, s1000, s1500, s2000 ...;
 judge the TREND toward the calibration numbers of the old token model that flew well
 (d188 dagger_r1_adapter), not one pass/fail number. Stop early only if the trend is flat or wrong.
+diag_moves.py calibration (60 VAL rows, NF4): old token model that flew well (d188 dagger_r1):
+still rule 20/20, still step 0.28 cm, straight yaw bias -0.02 deg (truth -0.03), turning -4.0 vs
+true -4.6 deg. D202 head s2000: still 13/20, step 1.1 cm (matches diag_head.py - the check works).
+Target for D204's trend: still -> 20/20, straight yaw bias -> ~0, turning yaw -> ~-4.6.
