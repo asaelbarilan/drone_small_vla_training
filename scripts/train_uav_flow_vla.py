@@ -963,6 +963,10 @@ def main():
     if args.resume:
         state = torch.load(checkpoint / "state.pt", weights_only=False)
         set_peft_model_state_dict(model, load_peft_weights(str(checkpoint)))
+        if head is not None and (checkpoint / "action_head.pt").exists():
+            # D201 head: its weights live next to the adapter; its Adam moments are in state.pt.
+            from action_head import ActionHead
+            head.load_state_dict(ActionHead.load(str(checkpoint / "action_head.pt"), "cuda").state_dict())
         optimiser.load_state_dict(state["optimiser"])
         report = state["report"]
         first = state["step"] + 1

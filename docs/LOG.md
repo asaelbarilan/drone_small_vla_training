@@ -1019,3 +1019,9 @@ check set; rule 1) -Variants "stage2|d202/stage2/adapter_s8000|--progress --goal
 --memory-deadband 1.0,5 --box" (action head loaded from action_head.pt in the adapter folder).
 Compared per kind with D190 (round-2 token model, same 100 tasks). Then decide on more step-2
 training from adapter_s8000 (user: "keep training while it goes up").
+D202 optimizer state: the trainer's checkpoint/ (adapter + action_head.pt + state.pt with Adam
+moments, 977 MB) lived only on the wiped NVMe. 09:43 UTC: /home/ubuntu/ckpt_watch.sh on the
+machine syncs it to s3://.../d202/checkpoint/ whenever state.pt changes (6000 done; 7000, 8000
+follow). Trainer --resume now also reloads the head from checkpoint/action_head.pt, so more
+step-2 training can continue exactly (copy d202/checkpoint to OUT/checkpoint, --resume,
+--updates N).
