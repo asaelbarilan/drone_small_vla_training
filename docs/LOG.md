@@ -1046,3 +1046,30 @@ g6.xlarge as before). Server log: "action head loaded" - moves come from the hea
 per flight (~13 s per call: box line + progress line generated, then one head pass), so ~5 h
 for 100; the 6 h hard-stop timer was reset at 17:04 UTC to 6 h from then (results upload only
 at the end of the variant). Machine turns itself off when done.
+
+## D203 result (2026-10-07 20:52 UTC): step-2 model FLIES BADLY - 12 % vs 69 % (D190)
+100-task validation check set, same server flags as D190 plus --box, moves from the action head.
+| Kind | D203 head (step 2) | D190 tokens (round 2) |
+|---|---|---|
+| Approach/Move | 1/10 | 5/10 |
+| Ascend/Descend | 0/10 | 9/10 |
+| Land | 0/15 | 15/15 |
+| Pass | 0/15 | 9/15 |
+| Retreat | 0/3 | 3/3 |
+| Shift | 0/15 | 13/15 |
+| Surround | 0/10 | 2/10 |
+| Turn | 7/12 | 4/12 |
+| Turn/Rotate | 4/10 | 9/10 |
+| all | 12 % (nDTW 0.05) | 69 % (nDTW 0.38) |
+Raw evidence (server_calls.jsonl, D:/drone_vla_pilot/runs/d203/stage2): EVERY flight runs the full
+104 steps - the drone never stops. (1) The head yaws ~0.4 deg every step on straight tasks, from
+the first call with a perfect line, so goal memory's yaw error grows past the 5-degree deadband
+(-13 deg after 4 calls on "descend 5 m and land") and the line never becomes 0 = never "arrived".
+(2) The head does not follow the line: on that Land task dz stays at the q01 bound (-13.3 cm per
+step, tanh saturated) even when the line says go UP 2-7 m; the drone ends 12 m down. (3) Even
+with line 0 it keeps moving 4-6 cm per step, above the evaluator's 3 cm "still" rule. The old
+token model on the same task: line 0 at -4.2 m, stop on the next call.
+Offline validation said sim 76 % exact / 90 % within one bin - so either the head is off on the
+simulator's own photos (domain gap) or something differs between trainer validation and server.
+Next: find which, locally (no AWS): run the trainer's head on held-out rows as the evaluator sends
+them, check yaw bias and line-following.
