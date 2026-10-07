@@ -1096,3 +1096,10 @@ NOT lack of training: the head could nearly hold still at 2,000 updates and got 
 training (a growing backward / right-turn bias near zero) while turns got more accurate. More
 updates of the same recipe would not fix it. Cause of the drift not yet known (n = 20 rows per
 group, NF4 - direction is clear, exact numbers rough).
+
+## D204 (2026-10-08, user-approved "ok"): step 2 again with move TOKENS instead of the head
+scripts/aws/train_stage2_d204.sh = D202 exactly, minus --action-head: from d199/stage1/adapter_s1000,
+box + next box + Left line + 32 bin tokens; 1:10 box-only mix, sim share 0.5, vision LoRA 0.1x,
+DAgger rows x20, mirror, photo-aug; 20-update smoke, 8,000 updates lr 2e-4 cosine; validation +
+adapters every 1,000; the optimizer checkpoint is now synced to S3 too. ~20 h, ~$20, machine off at
+the end. Then the same 100-task validation flights (D203 setup, no head).
