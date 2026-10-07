@@ -1041,3 +1041,8 @@ from adapter_s8000 with a fresh optimizer.
 D203 flights blocked 14:10 UTC: no g6 (L4) capacity in us-east-1d at xlarge / 2xlarge / 4xlarge;
 g5.xlarge started but the Windows NVIDIA driver does not see the A10G ("No CUDA GPUs"), so it was
 stopped and set back to g6.xlarge. Retrying the L4 start.
+D203 flights started 16:11 UTC 2026-10-07 (L4 capacity back after ~1.5 h of retries; machine on
+g6.xlarge as before). Server log: "action head loaded" - moves come from the head. Pace ~3 min
+per flight (~13 s per call: box line + progress line generated, then one head pass), so ~5 h
+for 100; the 6 h hard-stop timer was reset at 17:04 UTC to 6 h from then (results upload only
+at the end of the variant). Machine turns itself off when done.
