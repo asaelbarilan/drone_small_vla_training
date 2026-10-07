@@ -1025,3 +1025,19 @@ machine syncs it to s3://.../d202/checkpoint/ whenever state.pt changes (6000 do
 follow). Trainer --resume now also reloads the head from checkpoint/action_head.pt, so more
 step-2 training can continue exactly (copy d202/checkpoint to OUT/checkpoint, --resume,
 --updates N).
+
+## D202 result (2026-10-07 14:05 UTC): step 2 done, 8,000 updates, machine stopped itself
+| Update | real exact / 1 bin | sim exact / 1 bin | box error | x_corr | next-box error | Turn line-vs-box |
+|---|---|---|---|---|---|---|
+| 6000 | 39.3 / 59.3 | 72.3 / 89.6 | 56 | 0.89 | 111 | 0.83 |
+| 7000 | 41.9 / 59.4 | 73.9 / 90.2 | 59 | 0.80 | 115 | 0.83 |
+| 8000 | 41.6 / 59.5 | 76.2 / 90.4 | 61 | 0.79 | 108 | 0.80 |
+Sim per kind at 8000 (exact): Approach/Move 70, Ascend/Descend 68, Land 59, Pass 46, Retreat 77,
+Shift 84, Surround 86, Turn/Rotate 80, other 57. Move accuracy = the head's continuous moves
+rounded to the 256 bins, nothing given (not teacher-forced, unlike the old 32-token numbers).
+Adapter + head: s3://.../d202/stage2/adapter_s8000/. Optimizer checkpoint on S3 is update 7000
+(the 8000 copy was cut by the shutdown); a continuation can resume exactly from 7000 or start
+from adapter_s8000 with a fresh optimizer.
+D203 flights blocked 14:10 UTC: no g6 (L4) capacity in us-east-1d at xlarge / 2xlarge / 4xlarge;
+g5.xlarge started but the Windows NVIDIA driver does not see the A10G ("No CUDA GPUs"), so it was
+stopped and set back to g6.xlarge. Retrying the L4 start.
