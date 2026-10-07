@@ -1103,3 +1103,8 @@ box + next box + Left line + 32 bin tokens; 1:10 box-only mix, sim share 0.5, vi
 DAgger rows x20, mirror, photo-aug; 20-update smoke, 8,000 updates lr 2e-4 cosine; validation +
 adapters every 1,000; the optimizer checkpoint is now synced to S3 too. ~20 h, ~$20, machine off at
 the end. Then the same 100-task validation flights (D203 setup, no head).
+D204 restarted 21:27 UTC (still in setup) with adapters every 500 updates. Early-warning plan
+(user: "see there is an improvement on few updates"): scripts/diag/diag_moves.py (free, local
+GPU, no teacher forcing - the way the server answers) on adapter_s500, s1000, s1500, s2000 ...;
+judge the TREND toward the calibration numbers of the old token model that flew well
+(d188 dagger_r1_adapter), not one pass/fail number. Stop early only if the trend is flat or wrong.
