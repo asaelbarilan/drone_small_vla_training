@@ -1112,3 +1112,6 @@ diag_moves.py calibration (60 VAL rows, NF4): old token model that flew well (d1
 still rule 20/20, still step 0.28 cm, straight yaw bias -0.02 deg (truth -0.03), turning -4.0 vs
 true -4.6 deg. D202 head s2000: still 13/20, step 1.1 cm (matches diag_head.py - the check works).
 Target for D204's trend: still -> 20/20, straight yaw bias -> ~0, turning yaw -> ~-4.6.
+D204 early check, update 500 (diag_moves.py): still rule 20/20 (step 0.28 cm - same as the old
+flyer), straight yaw bias -0.16 deg (old flyer -0.02), turning -0.4 vs true -4.6 deg (turns not
+learned yet). Tokens hold still from the start, unlike the head. Next points: 1000, 1500, 2000.
