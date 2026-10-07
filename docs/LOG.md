@@ -1011,3 +1011,11 @@ accuracy (wandb, 5k): sim exact ~0.47 / within 1 bin ~0.86, still rising. NOT co
 old token runs' 91.7 / 94.1: those were teacher-forced over 32 tokens (each move token sees the
 true earlier ones; an untrained-on-moves model scored 25-45 % by copying in D199), while the head
 predicts all 8 moves at once with nothing given. The fair comparison is validation flights.
+
+## D203 (planned, user-approved "ok" 2026-10-07): step 3 - validation flights of the step-2 model
+After D202 ends (~12:30 UTC): Windows box i-03a3c8632314bf5fc, scripts/win_eval/eval_variants.ps1
+-Tag d203 -CodeZipKey d202/vla_code.zip -TaskZipKey d190/check_tasks.zip (the 100-task VALIDATION
+check set; rule 1) -Variants "stage2|d202/stage2/adapter_s8000|--progress --goal-memory
+--memory-deadband 1.0,5 --box" (action head loaded from action_head.pt in the adapter folder).
+Compared per kind with D190 (round-2 token model, same 100 tasks). Then decide on more step-2
+training from adapter_s8000 (user: "keep training while it goes up").
