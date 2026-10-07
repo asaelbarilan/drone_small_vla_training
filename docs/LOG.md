@@ -1073,3 +1073,15 @@ Offline validation said sim 76 % exact / 90 % within one bin - so either the hea
 simulator's own photos (domain gap) or something differs between trainer validation and server.
 Next: find which, locally (no AWS): run the trainer's head on held-out rows as the evaluator sends
 them, check yaw bias and line-following.
+D203 diagnosis (local, free, 2026-10-08): scripts/diag/diag_head.py runs the step-2 head on 60
+held-out real VAL rows exactly as in training (trainer encode, ground-truth line, dataset photo;
+NF4 on the local GPU). The same faults appear there, so it is the trained head, NOT the server:
+| Rows | mean error dx / dy / dz cm, yaw deg | predicted step / yaw | true step / yaw |
+|---|---|---|---|
+| still (true chunk all 0) | -4.0 / 0.0 / -0.3, +0.61 | 4.2 cm, +0.62 deg | 0, 0 |
+| straight (no turn) | +0.9 / +0.4 / -0.6, +0.48 | 27 cm, +0.50 deg | 22 cm, 0 |
+| turning | -3.4 / +0.6 / -0.4, -0.64 | 4.3 cm, -4.98 deg | 2.7 cm, -4.92 deg |
+Still rows pass the evaluator's still rule 0/20. The head is ~4-5 bins off near zero (a
+normalised error of 0.03-0.05; one bin is 0.008): it cannot say "exactly still" or "exactly no
+turn", which the bin tokens did for free (the zero bin). The "90 % within one bin" offline number
+hid this (dy / dz are near-trivial channels). OFT trains its head 50-150k steps; ours had 8k.
