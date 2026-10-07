@@ -1085,3 +1085,14 @@ Still rows pass the evaluator's still rule 0/20. The head is ~4-5 bins off near 
 normalised error of 0.03-0.05; one bin is 0.008): it cannot say "exactly still" or "exactly no
 turn", which the bin tokens did for free (the zero bin). The "90 % within one bin" offline number
 hid this (dy / dz are near-trivial channels). OFT trains its head 50-150k steps; ours had 8k.
+D203 trend over training (same 60 VAL rows, scripts/diag/diag_head.py, NF4 local):
+| Update | still rows passing the still rule | still: step / yaw | straight: yaw bias | turning: pred vs true yaw |
+|---|---|---|---|---|
+| 2000 | 13/20 | 1.1 cm / +0.05 deg | -0.01 deg | -2.5 vs -4.9 deg |
+| 4000 | 0/20 | 3.6 cm / +0.53 deg | +0.27 deg | -4.4 vs -4.9 deg |
+| 6000 | 0/20 | 3.8 cm / +0.58 deg | +0.48 deg | -4.7 vs -4.9 deg |
+| 8000 | 0/20 | 4.2 cm / +0.62 deg | +0.50 deg | -5.0 vs -4.9 deg |
+NOT lack of training: the head could nearly hold still at 2,000 updates and got WORSE with more
+training (a growing backward / right-turn bias near zero) while turns got more accurate. More
+updates of the same recipe would not fix it. Cause of the drift not yet known (n = 20 rows per
+group, NF4 - direction is clear, exact numbers rough).
