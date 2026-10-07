@@ -9,7 +9,8 @@
 # rounds 1 and 2 (rebuilt here from their rollout zips), both wordings, 504 held-out sim flights.
 # New from D196-D198: 1 box-only example per 10 flight examples (ST4VLA), simulator = half of the
 # flight examples, vision LoRA at 0.1x learning rate, written-box checks at every validation.
-# 20-update smoke first, then 8,000 updates; validation + adapter every 1,000 (the step-2 gate:
+# 20-update smoke first, then 8,000 updates; validation every 1,000, adapter every 500 (user: watch the
+# trend early with the free local check scripts/diag/diag_moves.py); (the step-2 gate:
 # move accuracy rising AND box/* not falling - checked by hand). Machine off at the end.
 # Runs on the D193/D199 machine (wandb login + packages on its root disk); NVMe data re-fetched.
 set -x
@@ -76,7 +77,7 @@ $PY scripts/train_uav_flow_vla.py $COMMON --updates 20 --lr 2e-4 --schedule cons
 step "4 stage 2 training (8,000 updates, lr 2e-4, warmup 3 %, cosine to 0)"
 ( while sleep 1800; do aws s3 sync $R $B/stage2/ --exclude "wandb/*" --quiet; aws s3 cp $LOG $B/train_stage2_d204.log --quiet; done ) &
 $PY scripts/train_uav_flow_vla.py $COMMON --updates 8000 --lr 2e-4 --schedule cosine --warmup 0.03 \
-  --val-every 1000 --val-batches 512 --save-every 1000 --max-wall-seconds 90000 \
+  --val-every 1000 --val-batches 512 --save-every 500 --max-wall-seconds 90000 \
   --wandb-project "vla training" --out $R
 echo "TRAIN_EXIT=$?"
 step "5 done"
