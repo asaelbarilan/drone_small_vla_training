@@ -997,3 +997,17 @@ machine stopped itself (~1 h). Try 2 (zip = scripts + reports + release) 18:30 U
 (loss 2.39 -> 0.47 in 20 updates; box checks kept: centre error 61, x_corr 0.87). Training from
 19:07 UTC, 7.5 s/update (~17 h). Data: 1.32M sim + 1.32M real flight rows, 264k box-only rows,
 DAgger 1,328 x 20; head 4.73M parameters. Update 1 box checks: error 55, IoU 0.66, x_corr 0.86.
+Box checks during step 2 (always-centre baseline 265):
+| Update | centre error | IoU | x_corr | next-box error | Turn line-vs-box |
+|---|---|---|---|---|---|
+| 1 | 55 | 0.66 | 0.86 | 125 | - |
+| 1000 | 74 | 0.60 | 0.80 | 138 | 0.75 |
+| 2000 | 75 | 0.62 | 0.82 | 138 | 0.80 |
+| 3000 | 69 | 0.64 | 0.83 | 128 | 0.80 |
+| 4000 | 67 | 0.61 | 0.80 | 115 | 0.75 |
+| 5000 | 73 | 0.61 | 0.77 | 113 | 0.75 |
+Grounding dropped a little in the first 1,000 updates, then held (no collapse like D193). Move
+accuracy (wandb, 5k): sim exact ~0.47 / within 1 bin ~0.86, still rising. NOT comparable with the
+old token runs' 91.7 / 94.1: those were teacher-forced over 32 tokens (each move token sees the
+true earlier ones; an untrained-on-moves model scored 25-45 % by copying in D199), while the head
+predicts all 8 moves at once with nothing given. The fair comparison is validation flights.
