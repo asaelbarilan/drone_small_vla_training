@@ -1115,3 +1115,10 @@ Target for D204's trend: still -> 20/20, straight yaw bias -> ~0, turning yaw ->
 D204 early check, update 500 (diag_moves.py): still rule 20/20 (step 0.28 cm - same as the old
 flyer), straight yaw bias -0.16 deg (old flyer -0.02), turning -0.4 vs true -4.6 deg (turns not
 learned yet). Tokens hold still from the start, unlike the head. Next points: 1000, 1500, 2000.
+| D204 update | still rule | straight yaw bias | turning yaw (true -4.6) | teacher-forced real / sim exact | box error / x_corr |
+|---|---|---|---|---|---|
+| 500 | 20/20 | -0.16 deg | -0.4 deg | - | - |
+| 1000 | 20/20 | -0.09 deg | -3.2 deg | 52.0 / 89.0 % (1 bin 69.7 / 91.2) | 65 / 0.83 |
+| old flyer d188 | 20/20 | -0.02 deg | -4.0 deg | (s31000: 54.5 / 91.7) | - |
+Trend right on every point: still kept, straight drift shrinking, turns being learned, move
+accuracy already near the old model after 1,000 updates, boxes holding.
