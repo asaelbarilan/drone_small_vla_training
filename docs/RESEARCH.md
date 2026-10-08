@@ -573,6 +573,13 @@ fell from 6 to 4.
 **44. Data.** Real only nDTW 0.128 vs real + sim 0.333 (D164, D166): the domain gap is the
 main cause.
 
+**44b. Action head vs move tokens** (D202-D204, same data, same stage-1 start): an OpenVLA-OFT
+style continuous head (4-layer MLP on 8 slot tokens, L1) flew 12 % (never stopped: it cannot
+output an exact zero; its near-zero bias grew with training). The same recipe with 32 bin tokens
+matched the old model's move accuracy after 2,000 updates and holds still 20/20. For this task,
+where stopping exactly is required, bin tokens beat the continuous head - opposite to OFT's
+LIBERO result. Possible fixes not tried: a zero class / deadzone, more updates of the head alone.
+
 ### I. Analyses
 
 **45. Goal-memory error analysis** (D182, 615 calls):
@@ -651,6 +658,61 @@ short and uses our 81k labels (no extra labelling).
 | 2 | continue that LoRA: box + next box + Left line + 8 moves | 1 box-only example per 10 flight examples; flight examples half simulator / half real; DAgger rows; mirror; colour + 224 px augmentation; vision LoRA at 0.1x learning rate | ~8,000 updates, ~20 h, ~$20 | every 1,000 updates: move accuracy toward 54 % real / 91.7 % sim and box checks not falling |
 | 3 | validation flights, fixed server (D191) with --box, goal memory + deadband | 100-task validation check set | ~2 h, ~$3 | Turn / Pass up, other kinds not down |
 | 4 | DAgger rounds with the new model | practice tasks incl. Turn / Surround | ~$6 per round | validation again |
+
+**51e. Staged retrain results (D199-D205, 2026-10-06 to 2026-10-08).**
+
+Step 1 (D199, boxes first, fresh LoRA, 1,000 updates, ~$3) - written-box checks on 120 balanced
+held-out simulator photos (always-centre baseline: error 265):
+
+| Update | box centre error | IoU | x correlation | next-box error |
+|---|---|---|---|---|
+| 1 (base Qwen) | 117 | 0.29 | 0.85 | - |
+| 250 | 61 | 0.61 | 0.86 | 118 |
+| 1000 (final) | 55 | 0.66 | 0.86 | 127 |
+
+Grounding restored (D193 had x correlation -0.02, error 265).
+
+Step 2, first try (D202, continuous action head, 8,000 updates, ~$25): offline it looked fine
+(sim 76 % exact / 90 % within one bin), but it flew **12 %** on the 100 validation tasks (D203)
+vs 69 % for D190 - every flight ran the full 104 steps. Diagnosis (D203, free, local): the head
+itself could not output "still" or "no turn" - 4 cm and +0.6 deg per step when the truth was 0 -
+so goal memory never reached the deadband and the drone never stopped. The bias grew with
+training (still rows passing the evaluator's still rule: 13/20 at update 2,000, 0/20 from 4,000
+on), so it was not under-training. Bin tokens have an exact zero bin. See 44b.
+
+Step 2, second try (D204, move tokens, otherwise identical): a free local check of each 500-update
+copy, the way the server answers (scripts/diag/diag_moves.py, 60 held-out real rows):
+
+| Update | still rule | straight yaw bias | turning yaw (true -4.6) | real / sim move acc | box error / x corr |
+|---|---|---|---|---|---|
+| 500 | 20/20 | -0.16 deg | -0.4 deg | - | - |
+| 1000 | 20/20 | -0.09 deg | -3.2 deg | 52.0 / 89.0 % | 65 / 0.83 |
+| 2000 | 20/20 | +0.03 deg | -4.1 deg | 52.7 / 89.8 % | 66 / 0.83 |
+| 5000 | - | - | - | 54.1 / 91.3 % | 62 / 0.81 |
+| old D188 flyer | 20/20 | -0.02 deg | -4.0 deg | (s31000: 54.5 / 91.7) | - |
+
+Move accuracy reached the old model's level after ~2,000 updates (the old one took 31,000); the
+box correlation slowly fell (0.86 -> 0.81). Stopped early at ~5,100 updates (user, saves ~$9);
+the update-5,000 checkpoint with optimizer state is on S3.
+
+Step 3, validation flights of D204 update 2,000 (D205), PARTIAL - 89 of 100 flown:
+
+| Kind | D204 s2000 (boxes first) | D190 (round-2 DAgger) |
+|---|---|---|
+| Turn (find the person) | **10/12** | 4/12 |
+| Surround | **5/10** | 2/10 |
+| Ascend/Descend | 10/10 | 9/10 |
+| Shift | 13/15 | 13/15 |
+| Approach/Move | 5/8 | 5/8 |
+| Pass | 6/9 | 7/9 |
+| Retreat | 1/1 | 1/1 |
+| Land | 9/14 | 14/14 |
+| Turn/Rotate (spin in place) | 3/10 | 9/10 |
+| all (89 flown) | 62 | 64 |
+
+The tasks that need the target in the photo improved sharply (Turn 4 -> 10 of 12, Surround 2 -> 5);
+Land and spin-in-place got worse - the kinds D190's extra DAgger rounds had polished. Next: the
+full 100, update 5,000 (D206), and why Land / Rotate dropped.
 
 **52. PPO.**
 - Value head on the layer-normalised last hidden state; GAE with gamma 0.99, lambda

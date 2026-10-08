@@ -1152,3 +1152,6 @@ D206 queued on the Windows box (11:20 UTC): C:\runs\d206_queue.ps1 waits for D20
 D205's end-of-run shutdown for 90 s, then flies d204/stage2/adapter_s5000 on the same 100 tasks
 (eval_variants -Tag d206, own 7 h stop timer; machine off at the end). Avoids a stop/start (L4
 capacity was short on 2026-10-07).
+D205 peek at 12:22 UTC (89 of 100): 62 vs D190 64 on the same tasks. Turn 10/12 vs 4/12, Surround
+5/10 vs 2/10, A/D 10/10 vs 9/10; Land 9/14 vs 14/14, Turn/Rotate 3/10 vs 9/10, Pass 6/9 vs 7/9.
+Written to RESEARCH.md 51e (staged retrain results) and 44b (head vs tokens).
