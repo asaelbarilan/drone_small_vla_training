@@ -1122,3 +1122,6 @@ learned yet). Tokens hold still from the start, unlike the head. Next points: 10
 | old flyer d188 | 20/20 | -0.02 deg | -4.0 deg | (s31000: 54.5 / 91.7) | - |
 Trend right on every point: still kept, straight drift shrinking, turns being learned, move
 accuracy already near the old model after 1,000 updates, boxes holding.
+| 1500 | 20/20 | -0.14 deg | -4.0 deg | - | - |
+(update 1500: turning now equals the old flyer (-4.0); straight drift -0.09 -> -0.14 is within
+the noise of 20 rows. Trend still good - training continues to 8,000.)
