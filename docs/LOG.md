@@ -1125,3 +1125,8 @@ accuracy already near the old model after 1,000 updates, boxes holding.
 | 1500 | 20/20 | -0.14 deg | -4.0 deg | - | - |
 (update 1500: turning now equals the old flyer (-4.0); straight drift -0.09 -> -0.14 is within
 the noise of 20 rows. Trend still good - training continues to 8,000.)
+| 2000 | 20/20 | +0.03 deg | -4.1 deg | 52.7 / 89.8 % (1 bin 72.1 / 92.1) | 66 / 0.83 (Turn line-vs-box 5/5) |
+Update 2000 matches the old flyer on every check (still 20/20, straight drift ~0, turning -4.1 vs
+-4.0); move accuracy at the old s31000 level after 2,000 updates; boxes holding. Sim per kind
+(exact): Approach/Move 81, Ascend/Descend 99, Land 75, Pass 61, Retreat 86, Shift 99, Surround 97,
+Turn/Rotate 99. Gate passed - training continues to 8,000, then the 100 validation flights.
