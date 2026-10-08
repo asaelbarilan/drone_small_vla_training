@@ -1148,3 +1148,7 @@ optimizer state) - training can resume exactly from 5000 with --resume. Machine 
 | real / sim exact | 53.4 / 90.7 % | 54.1 / 91.3 % |
 | box error / x_corr / next-box error | 69 / 0.80 / 131 | 62 / 0.81 / 106 |
 Next: D205 flights of s2000 finish, then fly s5000 on the same 100 validation tasks.
+D206 queued on the Windows box (11:20 UTC): C:\runs\d206_queue.ps1 waits for D205's ALL_DONE, aborts
+D205's end-of-run shutdown for 90 s, then flies d204/stage2/adapter_s5000 on the same 100 tasks
+(eval_variants -Tag d206, own 7 h stop timer; machine off at the end). Avoids a stop/start (L4
+capacity was short on 2026-10-07).
