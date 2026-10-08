@@ -1137,3 +1137,5 @@ validation check set (d190/check_tasks.zip), server --progress --goal-memory --m
 1.0,5 --box, adapter d204/stage2/adapter_s2000 (move tokens, D191 constrained greedy). Started
 ~09:48. Chosen over update 4000: passed every diag_moves check, boxes better (x_corr 0.83 vs ~0.81
 later). If it beats D190's 69 %, stop D204 early (saves ~$10, keeps the boxes).
+D205 peek at 10:29 UTC (23 of 100 flown, ~1.8 min per flight - flights end normally again):
+16/23 vs D190 15/23 on the same tasks; Turn 4/5 vs 2/5, others equal (Turn/Rotate 0/1 vs 1/1).
