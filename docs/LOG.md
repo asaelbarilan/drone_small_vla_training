@@ -1139,3 +1139,12 @@ validation check set (d190/check_tasks.zip), server --progress --goal-memory --m
 later). If it beats D190's 69 %, stop D204 early (saves ~$10, keeps the boxes).
 D205 peek at 10:29 UTC (23 of 100 flown, ~1.8 min per flight - flights end normally again):
 16/23 vs D190 15/23 on the same tasks; Turn 4/5 vs 2/5, others equal (Turn/Rotate 0/1 vs 1/1).
+D204 stopped early at update ~5,100 (11:13 UTC, user-approved): move accuracy 2000 -> 5000 only
++1.5 points (sim 89.8 -> 91.3, real 52.7 -> 54.1) while box x_corr 0.83 -> 0.81. Saved ~$9.
+Everything on S3: adapter_s500 ... adapter_s5000, and checkpoint/ (update 5000, with the
+optimizer state) - training can resume exactly from 5000 with --resume. Machine stopped itself.
+| D204 update | 4000 | 5000 |
+|---|---|---|
+| real / sim exact | 53.4 / 90.7 % | 54.1 / 91.3 % |
+| box error / x_corr / next-box error | 69 / 0.80 / 131 | 62 / 0.81 / 106 |
+Next: D205 flights of s2000 finish, then fly s5000 on the same 100 validation tasks.
