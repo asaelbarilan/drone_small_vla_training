@@ -1130,3 +1130,10 @@ Update 2000 matches the old flyer on every check (still 20/20, straight drift ~0
 -4.0); move accuracy at the old s31000 level after 2,000 updates; boxes holding. Sim per kind
 (exact): Approach/Move 81, Ascend/Descend 99, Land 75, Pass 61, Retreat 86, Shift 99, Surround 97,
 Turn/Rotate 99. Gate passed - training continues to 8,000, then the 100 validation flights.
+
+## D205 (2026-10-08, user-approved): validation flights of D204 update 2000, training continues
+Windows box (g6.xlarge), eval_variants.ps1 -Tag d205, code d204/vla_code.zip, the same 100-task
+validation check set (d190/check_tasks.zip), server --progress --goal-memory --memory-deadband
+1.0,5 --box, adapter d204/stage2/adapter_s2000 (move tokens, D191 constrained greedy). Started
+~09:48. Chosen over update 4000: passed every diag_moves check, boxes better (x_corr 0.83 vs ~0.81
+later). If it beats D190's 69 %, stop D204 early (saves ~$10, keeps the boxes).
