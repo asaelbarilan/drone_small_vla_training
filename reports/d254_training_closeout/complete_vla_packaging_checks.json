@@ -1,0 +1,11 @@
+{
+  "package_files": 184,
+  "processor_offline_load": true,
+  "action_channels": 4,
+  "action_decode_shape": [
+    8,
+    4
+  ],
+  "full_model_forward_test": false,
+  "base_and_adapter_original_weights_preserved": true
+}
