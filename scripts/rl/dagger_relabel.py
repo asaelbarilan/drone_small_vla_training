@@ -72,6 +72,25 @@ def expert_labels(reference, pose, steps=8):
     return progress, moves
 
 
+def box_context(call):
+    """Carry the exact canonical box conditioning used by the grounded server.
+
+    These are student predictions, not independently labelled boxes. The trainer
+    masks their tokens; only expert progress/action targets receive loss.
+    """
+    if "box" not in call or "now" not in call["box"]:
+        raise ValueError("Grounded DAgger requires box metadata on every call")
+    boxes = call["box"]
+    out = {"box_context": True, "box": boxes["now"] or []}
+    if boxes.get("next") is not None:
+        out["next_box"] = boxes["next"]
+    for field in ("box", "next_box"):
+        box = out.get(field, [])
+        if not isinstance(box, list) or len(box) not in (0, 4):
+            raise ValueError("Malformed predicted box")
+    return out
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--flights", nargs="+", type=Path, required=True)
@@ -79,6 +98,7 @@ def main():
     parser.add_argument("--images", type=Path, required=True)
     parser.add_argument("--tasks", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True, help="rows .jsonl for --extra-rows")
+    parser.add_argument("--box-context", action="store_true", help="Mask student box prefixes; supervise expert actions/progress only")
     args = parser.parse_args()
 
     rows, flights = [], 0
@@ -105,6 +125,7 @@ def main():
                     chunk=moves,
                     chunk_len=len(moves),
                     progress=progress,
+                    **(box_context(call) if args.box_context else {}),
                 ))
     args.out.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
     print(json.dumps(dict(flights=flights, rows=len(rows), out=str(args.out))))

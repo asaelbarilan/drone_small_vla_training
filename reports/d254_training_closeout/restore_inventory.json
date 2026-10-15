@@ -1,0 +1,18 @@
+{
+  "verified_by": "S3 HeadObject, 2026-10-15",
+  "objects": {
+    "d170/store.tar": 75371663360,
+    "d193/boxes.jsonl": 9823300,
+    "d172/d188_dagger_r1.zip": 50314897,
+    "d172/d190_dagger_r1.zip": 111288326,
+    "d204/vla_code.zip": 800917,
+    "d207/stage2/checkpoint/state.pt": 645101597,
+    "d207/stage2/report.json": 202377,
+    "d207/stage2/sim_val_flights.json": 13608,
+    "win_bundle.tgz": 300867863
+  },
+  "weights_sha256_verified_separately": true,
+  "dataset_entire_archive_redownloaded": false,
+  "fresh_full_restore_test_performed": false,
+  "disks_deleted": false
+}

@@ -1,0 +1,23 @@
+{
+  "s3_prefix": "d207/stage2/adapter_s8000/",
+  "files": [
+    {
+      "name": "adapter_model.safetensors",
+      "size": 322279296,
+      "sha256": "12e43d18489531d7446219bc88ed5ede0371935649b1464674a41e1cc155ac8e",
+      "matches_local": true
+    },
+    {
+      "name": "adapter_config.json",
+      "size": 1242,
+      "sha256": "5869411e81804b7a85195b80e9affd8485989f62f566997de92a35303bf03127",
+      "matches_local": true
+    },
+    {
+      "name": "README.md",
+      "size": 5204,
+      "sha256": "68eb1ae6080983a9d260ba292295e4166502b5406a11ec3981a04859f7860c41",
+      "matches_local": null
+    }
+  ]
+}

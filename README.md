@@ -7,7 +7,13 @@ action tokens. Before its moves it writes a **progress line** - what is left to 
 flight - and at inference a small server rule (**goal memory + arrival deadband**) keeps that
 line consistent when the target leaves the camera view.
 
-## Results (UAV-Flow-Sim, official evaluator, 100 tasks = first 10 of each class)
+## Current checkpoint and closeout (2026-10-15)
+
+The retained supervised model is **D207 stage2 step8000**, evaluated as D208: historical development validation82/100, nDTW0.4255. Later DAgger/PPO/critic experiments did not establish reliable improvement; training is stopped. See `reports/d254_training_closeout/CLOSEOUT.md` (backed up in S3), and `docs/RESEARCH.md` / `docs/LOG.md` for the complete record.
+
+The complete single-download VLA release layout is documented in [`release/d207_s8000_complete/`](release/d207_s8000_complete/). Model/data/report binaries are backed up separately in S3; GitHub contains source, tests and research documentation. The older results below are retained as historical results and must not be attributed to step8000.
+
+## Historical results (official evaluator, 100 tasks = first 10 of each class)
 
 | Model | Params | Success (3 m, 10 deg) | nDTW |
 |---|---|---|---|

@@ -11,7 +11,12 @@ Policy, per model call: 4*K action tokens sampled from
 exactly as the rollout server sampled them (uav_flow_eval_server.py
 --rollout-temperature). Loss per token (PPO clip, as in GRPO):
     -min(r * A, clip(r, 1 - eps, 1 + eps) * A),  r = exp(logp_new - logp_old)
-with A the flight's advantage. The "old" log-probabilities are recomputed here
+with A the flight's advantage. This paragraph describes the historical GRPO path.
+D213 PPO instead clips the joint chunk ratio, requires explicit approved rewards
+and episode boundaries, and rejects context/probability drift. It is not yet a
+launch-ready end-to-end pipeline; see the D213 preflight report.
+
+For historical GRPO, the "old" log-probabilities are recomputed here
 with the rollout adapter before any update (so rollout and training machines
 need not agree to the last bit); the recorded ones are kept as a check.
 
@@ -33,6 +38,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parent))
 from rollout_samples import build, ppo_advantages, summary  # noqa: E402
+from ppo_math import joint_ppo_loss, replay_parity, update_batches, validate_ppo_samples  # noqa: E402
 from train_uav_flow_vla import (  # noqa: E402
     collate,
     encode,
@@ -49,7 +55,11 @@ def encoded(processor, tokenizer, sample, chunk, rollout_dirs):
     row = dict(prompt=sample["prompt"])
     if "progress_text" in sample:  # D175: the server's progress line is context
         row["progress_text"] = sample["progress_text"]
+    if "box_text" in sample:
+        row["box_text"] = sample["box_text"]
     batch = encode(processor, tokenizer, row, chunk, with_answer=False, image=image)
+    if "context_input_ids" in sample and batch["input_ids"][0].tolist() != sample["context_input_ids"]:
+        raise ValueError("sampled context tokens differ from trainer replay")
     prompt_length = batch["input_ids"].shape[1]
     answer = torch.tensor([sample["ids"]], dtype=batch["input_ids"].dtype)
     batch["input_ids"] = torch.cat([batch["input_ids"], answer], dim=1)
@@ -93,8 +103,8 @@ def main():
     parser.add_argument("--objective", default="grpo", choices=["grpo", "dpo", "ppo"],
                         help="dpo: trajectory preference pairs, best vs worst flight per task "
                         "(D173, AeroDPO/GRAPE style); the rollout adapter is the reference. "
-                        "ppo (D185): per-call advantages from a value head (GAE) instead of "
-                        "group z-scores; RL4VLA found PPO > GRPO > DPO for VLAs")
+                        "ppo: joint-chunk ratios and explicit terminal/truncation targets; "
+                        "requires new approved rollout metadata (legacy logs rejected)")
     parser.add_argument("--gamma", type=float, default=0.99, help="ppo: discount per call")
     parser.add_argument("--gae-lambda", type=float, default=0.95, help="ppo: GAE lambda")
     parser.add_argument("--value-coef", type=float, default=0.5, help="ppo: value loss weight")
@@ -118,8 +128,18 @@ def main():
     stats = summary(rows)
     # GRPO/DPO: samples whose group has no spread carry no signal. PPO keeps every call:
     # its advantage comes from the value head, not from the group.
+    if args.objective == "ppo" and any(not s.get("ids") for s in samples):
+        raise ValueError("PPO cannot drop missing-action calls from an episode")
     samples = [s for s in samples if s.get("ids") and (args.objective == "ppo" or s["advantage"] != 0)]
+    if not samples:
+        raise ValueError("no usable rollout samples; zero updates are not success")
+    if args.batch_size <= 0 or args.accum <= 0 or args.epochs <= 0:
+        raise ValueError("batch-size, accum and epochs must be positive")
+    if args.objective == "ppo":
+        validate_ppo_samples(samples, args.chunk)
     temperature = samples[0]["temperature"]
+    if temperature <= 0:
+        raise ValueError("on-policy collection requires positive sampling temperature")
     assert all(s["temperature"] == temperature for s in samples), "mixed rollout temperatures"
     print(json.dumps(dict(rollouts=stats, samples_with_signal=len(samples))), flush=True)
 
@@ -145,6 +165,7 @@ def main():
             value_head.load_state_dict(torch.load(args.value_head, map_location="cuda"))
         groups.append(dict(params=list(value_head.parameters()), lr=args.value_lr))
     optimiser = torch.optim.AdamW(groups, lr=args.lr)
+    optim_params = [p for group in groups for p in group["params"]]
 
     def token_logps(items, with_values=False):
         """Per-token log-probabilities of each item's answer under the current
@@ -164,7 +185,7 @@ def main():
                 # D185 check: raw hidden states are large, so one Adam step on the zero-
                 # initialised head moved V wildly (value loss 3.5 -> 211). Normalise first.
                 state = output.hidden_states[-1][row, prompt_length - 1].float()
-                values.append(value_head(torch.nn.functional.layer_norm(state, state.shape))[0])
+                values.append(value_head(torch.nn.functional.layer_norm(state.detach(), state.shape))[0])
         if with_values:
             return torch.stack(out), torch.stack(values)
         return torch.stack(out)
@@ -188,9 +209,13 @@ def main():
                           mean=round(sum(drift) / len(drift), 5))), flush=True)
 
     if args.objective == "ppo":
-        # D185 GAE over each flight's calls: reward = the call's own progress gain
-        # (rollout_samples.call_gain: closeness gained, 2 m or 10 deg = 1), plus the
-        # flight's end reward on its last call.
+        replay_parity([s["logps"] for s in samples], [s["old"] for s in samples])
+        # Use the behavior probabilities, not a recomputation that hides drift.
+        for s in samples:
+            s["old"] = s["logps"]
+
+    if args.objective == "ppo":
+        # D213: only explicit approved rewards and episode boundaries enter GAE.
         flights_ppo = ppo_advantages(samples, args.gamma, args.gae_lambda)
         values_all = [s["gae"] for s in samples]
         mean = sum(values_all) / len(values_all)
@@ -216,7 +241,7 @@ def main():
         run = wandb.init(project=args.wandb_project, entity="asael", name=args.out.name, config=vars(args) | dict(temperature=temperature))
     report = dict(args={k: str(v) for k, v in vars(args).items()}, rollouts=stats, flights=rows,
                   samples=len(samples), temperature=temperature, updates=[])
-    model.train()
+    model.eval() if args.objective == "ppo" else model.train()  # PPO replay uses dropout-free inference
     rng = random.Random(7)
     step = 0
 
@@ -279,7 +304,7 @@ def main():
                     logs["z"] += z / len(chunk_pairs)
                     logs["pair_acc"] += float(z > 0) / len(chunk_pairs)
                 logs["sft"] = sft_term()
-                torch.nn.utils.clip_grad_norm_(params, 1.0)
+                torch.nn.utils.clip_grad_norm_(optim_params, 1.0, error_if_nonfinite=True)
                 optimiser.step()
                 step += 1
                 report["updates"].append(dict(step=step, epoch=epoch, **{k: round(v, 5) for k, v in logs.items()}))
@@ -289,38 +314,45 @@ def main():
     for epoch in range(args.epochs if args.objective in ("grpo", "ppo") else 0):
         order = list(range(len(samples)))
         rng.shuffle(order)
-        per_update = args.batch_size * args.accum
-        for u in range(0, len(order) - per_update + 1, per_update):
+        for microbatches in update_batches(order, args.batch_size, args.accum):
             optimiser.zero_grad(set_to_none=True)
             logs = dict(pg=0.0, ratio=0.0, clipped=0.0, sft=0.0, value=0.0)
-            for a in range(args.accum):
-                part = [samples[j] for j in order[u + a * args.batch_size : u + (a + 1) * args.batch_size]]
+            for indices, weight in microbatches:
+                part = [samples[j] for j in indices]
                 items = [encoded(processor, tokenizer, s, args.chunk, rollout_dirs) for s in part]
                 if value_head is not None:
                     new, values = token_logps(items, with_values=True)
                     returns = torch.tensor([s["return"] for s in part], device=values.device)
                     loss_value = ((values - returns) ** 2).mean()
-                    extra = args.value_coef * loss_value  # one backward with the policy loss
-                    logs["value"] += float(loss_value) / args.accum
+                    extra = args.value_coef * loss_value
+                    logs["value"] += float(loss_value) * weight
                 else:
                     new = token_logps(items)
                     extra = 0.0
                 old = torch.tensor([s["old"] for s in part], device=new.device)
-                adv = torch.tensor([s["advantage"] for s in part], device=new.device)[:, None]
-                ratio = (new - old).exp()
-                loss_pg = -torch.minimum(ratio * adv, ratio.clamp(1 - args.clip, 1 + args.clip) * adv).mean()
-                ((loss_pg + extra) / args.accum).backward()
-                logs["sft"] += sft_term(1.0 / args.accum) / args.accum
-                logs["pg"] += float(loss_pg) / args.accum
-                logs["ratio"] += float(ratio.mean()) / args.accum
-                logs["clipped"] += float(((ratio - 1).abs() > args.clip).float().mean()) / args.accum
-            torch.nn.utils.clip_grad_norm_(params, 1.0)
+                adv = torch.tensor([s["advantage"] for s in part], device=new.device)
+                if args.objective == "ppo":
+                    loss_pg, ratio = joint_ppo_loss(new, old, adv, args.clip)
+                else:
+                    adv = adv[:, None]
+                    ratio = (new - old).exp()
+                    loss_pg = -torch.minimum(ratio * adv, ratio.clamp(1-args.clip, 1+args.clip) * adv).mean()
+                if not torch.isfinite(loss_pg + extra):
+                    raise ValueError("nonfinite optimization loss")
+                ((loss_pg + extra) * weight).backward()
+                logs["sft"] += sft_term(weight) * weight
+                logs["pg"] += float(loss_pg) * weight
+                logs["ratio"] += float(ratio.mean()) * weight
+                logs["clipped"] += float(((ratio - 1).abs() > args.clip).float().mean()) * weight
+            torch.nn.utils.clip_grad_norm_(optim_params, 1.0, error_if_nonfinite=True)
             optimiser.step()
             step += 1
             report["updates"].append(dict(step=step, epoch=epoch, **{k: round(v, 5) for k, v in logs.items()}))
             print(json.dumps(report["updates"][-1]), flush=True)
             if run:
                 run.log(logs, step=step)
+    if step == 0:
+        raise ValueError("zero optimizer updates; no successful training artifact written")
     model.save_pretrained(args.out / f"adapter_{args.objective}")
     if value_head is not None:
         torch.save(value_head.state_dict(), args.out / "value_head.pt")

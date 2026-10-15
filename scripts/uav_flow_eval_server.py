@@ -118,8 +118,10 @@ def left_from_goal(goal, position_m, yaw_total_deg):
 
 def qwen_loader(
     adapter, chunk, precision, temperature=None, contrast=None, plausible=0.1,
-    progress=False, goal_memory=False, deadband=None, constrain=True, box=False,
+    progress=False, goal_memory=False, deadband=None, constrain=True, box=False, prefix_adapter=None, numeric_goals=False, auto_numeric_goals=False,
 ):
+    if (numeric_goals or auto_numeric_goals) and not (progress and goal_memory):
+        raise ValueError("numeric goals require progress and goal memory")
     from peft import PeftModel
     from train_uav_flow_vla import (
         OFFICIAL_PROMPT,
@@ -139,7 +141,21 @@ def qwen_loader(
 
     api, processor, base, _ = setup("qwen", precision)
     tokenizer = ActionTokenizer(processor.tokenizer, official_stats())
-    model = PeftModel.from_pretrained(base, adapter)
+    composite = None
+    if prefix_adapter is not None:
+        sys.path.insert(0,str(Path(__file__).resolve().parent/'rl'))
+        from composite_policy import CompositePolicy, runtime_identity
+        composite = CompositePolicy.load(base, adapter, prefix_adapter)
+        model = composite.model
+        composite.provenance.update(runtime_identity(model,processor,official_stats()))
+        composite.provenance["sampling_contract"] = "action-categorical-v2"
+        if numeric_goals:
+            from numeric_goals import VERSION
+            composite.provenance["goal_mode"] = VERSION
+        elif auto_numeric_goals:
+            composite.provenance["goal_mode"] = "instruction-routed-v1"
+    else:
+        model = PeftModel.from_pretrained(base, adapter)
     model.eval()
     low, high = tokenizer.vocab_size - tokenizer.n_bins, tokenizer.vocab_size
     # D201: an adapter trained with --action-head carries action_head.pt; its moves come from
@@ -171,6 +187,7 @@ def qwen_loader(
         max_new_tokens=4 * chunk,
         min_new_tokens=4 * chunk,
         output_logits=True,
+        output_scores=True,
         return_dict_in_generate=True,
         pad_token_id=processor.tokenizer.pad_token_id,
     )
@@ -193,10 +210,19 @@ def qwen_loader(
 
     line_tokens = len(processor.tokenizer.encode(progress_text([0, 0, 0, 0]), add_special_tokens=False))
 
-    def progress_line(row, image, metres):
+    def numeric_for(instruction):
+        from numeric_goals import instruction_goal_mode
+        return instruction_goal_mode(instruction, strict=numeric_goals, automatic=auto_numeric_goals)=="numeric"
+
+    def progress_line(row, image, metres, instruction):
         """D175 phase 1: the model writes its progress line (greedy). With goal
         memory, the first well-formed line fixes a goal in the start frame, and
         every later call is handed the line recomputed from that goal instead."""
+        if numeric_for(instruction):
+            from numeric_goals import numeric_progress
+            used, info = numeric_progress(instruction, metres, STATE["yaw_total"])
+            text = progress_text(used)
+            return text, info | dict(progress_text=text, progress_said=None, progress_parsed=None)
         batch = encode(processor, tokenizer, row, chunk, with_answer=False, image=image)
         with torch.inference_mode():
             ids = model.generate(
@@ -246,19 +272,38 @@ def qwen_loader(
             line += next_box_text(future)
         return line, dict(now=found, next=future)
 
-    def predict(image, proprio, instruction):
+    def predict(image, proprio, instruction, context_only=False):
         metres = [proprio[0] / 100, proprio[1] / 100, proprio[2] / 100, proprio[3]]
+        if numeric_for(instruction):
+            from numeric_goals import numeric_goal
+            numeric_goal(instruction)  # reject before any model generation
         state = ",".join(str(round(float(x), 1)) for x in metres)
         prompt = OFFICIAL_PROMPT.format(state=state, instruction=instruction)
         row = dict(prompt=prompt)
+        if composite is not None:
+            composite.activate("prefix")
         if box:
             row["box_text"], STATE["box"] = box_line(row, image)
         if progress:
-            text, info = progress_line(row, image, metres)
+            text, info = progress_line(row, image, metres, instruction)
             STATE["progress"] = info
             if text is not None:  # malformed line: answer without one
                 row["progress_text"] = text
+        if composite is not None:
+            composite.activate("action")
+        if numeric_for(instruction):
+            from numeric_goals import numeric_action_instruction
+            action_instruction = numeric_action_instruction(instruction)
+            prompt = OFFICIAL_PROMPT.format(state=state, instruction=action_instruction)
+            row["prompt"] = prompt
+            STATE["progress"]["action_instruction"] = action_instruction
+        # Each generation builds fresh KV state under its own adapter.
         batch = encode(processor, tokenizer, row, chunk, with_answer=False, image=image)
+        if context_only:
+            return dict(prompt=prompt, box_text=row.get('box_text',''),
+                        progress_text=row.get('progress_text',''),
+                        context_input_ids=batch['input_ids'][0].tolist(),context_schema=1,
+                        policy_provenance=(composite.provenance if composite else {}) | dict(precision=precision))
         if head is not None:
             # D201: k slot tokens after the box / progress lines, one pass, the head reads them.
             batch = append_ids(batch, [head_slot] * chunk)
@@ -288,15 +333,27 @@ def qwen_loader(
                 out = model.generate(
                     **api.cuda(batch),
                     generation_config=sampling,
+                    use_model_defaults=False,  # do not replace T=1/top-p=1 with checkpoint defaults
                     logits_processor=LogitsProcessorList([ActionTokensOnly()]),
                 )
                 ids = out.sequences[0, batch["input_ids"].shape[1] :].tolist()
                 logits = torch.stack(out.logits, dim=1)[0, :, low:high].float() / temperature
                 picked = torch.tensor(ids, device=logits.device) - low
                 logps = logits.log_softmax(-1).gather(1, picked[:, None])[:, 0].tolist()
-                STATE["sample"] = dict(prompt=prompt, ids=ids, logps=logps, temperature=temperature)
-                if "progress_text" in row:
-                    STATE["sample"]["progress_text"] = row["progress_text"]
+                actual_scores = torch.stack(out.scores, dim=1)[0, :, low:high].float()
+                sampler_error = (actual_scores.log_softmax(-1) - logits.log_softmax(-1)).abs().max().item()
+                if not math.isfinite(sampler_error) or sampler_error > 1e-6:
+                    raise ValueError("actual sampler differs from recorded action probabilities")
+                STATE["sample"] = dict(prompt=prompt, ids=ids, logps=logps, temperature=temperature,
+                                       sampling_contract="action-categorical-v2", top_k=0, top_p=1.0,
+                                       use_model_defaults=False, sampler_logp_max_error=sampler_error)
+                # D213: replay the actual action context, including raw box text.
+                STATE["sample"]["context_input_ids"] = batch["input_ids"][0].tolist()
+                STATE["sample"]["box_text"] = row.get("box_text", "")
+                STATE["sample"]["progress_text"] = row.get("progress_text", "")
+                STATE["sample"]["context_schema"] = 1
+                if composite is not None:
+                    STATE["sample"]["policy_provenance"] = composite.provenance | dict(precision=precision)
             elif constrain:
                 # D191: greedy over the 256 action tokens only, exactly 4 x chunk of them. Before,
                 # greedy was unconstrained and non-action tokens were dropped afterwards; on
@@ -320,16 +377,28 @@ def qwen_loader(
             return []
         return [np.array([dx * 100, dy * 100, dz * 100, dyaw]) for dx, dy, dz, dyaw in steps]
 
+    predict.observe_context = lambda image, proprio, instruction: predict(image, proprio, instruction, context_only=True)
+    predict.policy = composite
+    predict.runtime = (api, processor, tokenizer)
     return predict
 
 
 @app.route("/reset", methods=["POST"])
 def reset():
     # The evaluator calls /reset before every task: a new rollout episode.
+    data = request.get_json(silent=True) or {}
+    seed = data.get("seed")
+    if seed is not None:
+        if type(seed) is not int or not 0 <= seed < 2**32:
+            return jsonify({"error": "seed must be an unsigned 32-bit integer"}), 400
+        import random
+        random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
+        if torch.cuda.is_available(): torch.cuda.manual_seed_all(seed)
+    STATE["episode_seed"] = seed
     STATE["episode"] += 1
     STATE["call"] = 0
     STATE["goal"], STATE["yaw_total"], STATE["last_yaw"] = None, 0.0, None
-    return jsonify({"status": "ok"})
+    return jsonify({"status": "ok", "seed": seed})
 
 
 @app.route("/predict", methods=["POST"])
@@ -368,17 +437,41 @@ def predict():
         # D172: everything GRPO needs to re-score this call under a newer policy.
         name = f"ep{STATE['episode']:05d}_c{STATE['call']:03d}.png"
         image.save(STATE["rollout_dir"] / name)
-        record |= dict(episode=STATE["episode"], call=STATE["call"], image=name, **STATE.pop("sample", {}))
+        import hashlib
+        record |= dict(episode=STATE["episode"], call=STATE["call"], image=name,
+                       image_sha256=hashlib.sha256((STATE["rollout_dir"] / name).read_bytes()).hexdigest(),
+                       **STATE.pop("sample", {}))
         STATE["call"] += 1
     STATE["log"].write(json.dumps(record) + "\n")
     STATE["log"].flush()
-    return jsonify({"status": "success", "action": poses})
+    return jsonify({"status": "success", "action": poses, "record": record})
+
+
+@app.route('/observe', methods=['POST'])
+def observe():
+    """Generate bootstrap context at an executed boundary; no action sampling."""
+    data=request.json
+    if not hasattr(STATE['predict'],'observe_context') or not STATE['rollout_dir']:
+        return jsonify(error='observation context requires Qwen rollout mode'),400
+    image=Image.open(io.BytesIO(base64.b64decode(data['image']))).convert('RGB')
+    proprio=np.asarray(data['proprio'],float)
+    if STATE['last_yaw'] is not None:
+        STATE['yaw_total']+=(proprio[3]-STATE['last_yaw']+180)%360-180
+    STATE['last_yaw']=float(proprio[3])
+    record=STATE['predict'].observe_context(image,proprio,data['instr'])
+    name=f"ep{STATE['episode']:05d}_final.png"
+    target=STATE['rollout_dir']/name;image.save(target)
+    import hashlib
+    record.update(id=name,image=name,image_sha256=hashlib.sha256(target.read_bytes()).hexdigest(),
+                  proprio=proprio.tolist(),observation_only=True)
+    return jsonify(record)
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", required=True, choices=["openvla-uav", "qwen"])
     parser.add_argument("--path", default="D:/drone_vla_pilot/models/openvla-uav")
+    parser.add_argument("--prefix-adapter", help="frozen box/progress adapter; --path remains action adapter")
     parser.add_argument("--chunk", type=int, default=8)
     parser.add_argument("--precision", default="nf4", choices=["nf4", "bf16"])
     parser.add_argument("--port", type=int, default=5007)
@@ -420,6 +513,9 @@ def main():
         help="D185 DAgger: save every call's photo and episode/call numbers also when decoding "
         "greedily (without --rollout-temperature)",
     )
+    parser.add_argument("--auto-numeric-goals", action="store_true", help="Use strict numeric grammar when supported; otherwise use generated goal memory")
+    parser.add_argument("--numeric-goals", action="store_true",
+                        help="D226 strict numeric instruction goals with 10 cm / 1 degree arrival; requires progress and goal-memory")
     parser.add_argument(
         "--memory-deadband",
         help="D182 with --goal-memory: 'metres,degrees'; inside it the line becomes 0 (arrived)",
@@ -436,6 +532,8 @@ def main():
         "only to reproduce runs before D191",
     )
     args = parser.parse_args()
+    if (args.numeric_goals or args.auto_numeric_goals) and (args.model != "qwen" or not args.progress or not args.goal_memory):
+        parser.error("--numeric-goals requires qwen, --progress and --goal-memory")
     assert args.progress or not args.goal_memory, "--goal-memory needs --progress"
     deadband = [float(v) for v in args.memory_deadband.split(",")] if args.memory_deadband else None
     STATE["stop_confirm"] = args.stop_confirm
@@ -452,7 +550,8 @@ def main():
         STATE["predict"] = qwen_loader(
             args.path, args.chunk, args.precision, args.rollout_temperature, args.contrast_alpha,
             progress=args.progress, goal_memory=args.goal_memory, deadband=deadband,
-            constrain=not args.unconstrained_greedy, box=args.box,
+            constrain=not args.unconstrained_greedy, box=args.box, prefix_adapter=args.prefix_adapter,
+            numeric_goals=args.numeric_goals, auto_numeric_goals=args.auto_numeric_goals,
         )
     args.log.parent.mkdir(parents=True, exist_ok=True)
     STATE["log"] = open(args.log, "a", encoding="utf-8")  # noqa: SIM115 - lives with the server

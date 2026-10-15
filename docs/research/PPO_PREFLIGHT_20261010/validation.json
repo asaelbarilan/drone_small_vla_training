@@ -1,0 +1,15 @@
+{
+  "works": 27,
+  "meaningful": 27,
+  "primary": 25,
+  "categories": {
+    "foundational": 9,
+    "negative_evidence": 5,
+    "direct_solution": 6,
+    "recent": 3,
+    "dataset_benchmark": 3,
+    "review": 1
+  },
+  "valid": true,
+  "errors": []
+}

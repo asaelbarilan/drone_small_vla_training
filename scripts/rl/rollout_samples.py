@@ -130,24 +130,43 @@ def build(passes, tasks_dir, call_weight=0.0):
 
 
 def ppo_advantages(samples, gamma=0.99, lam=0.95):
-    """D185 PPO: GAE over each flight's calls, in place (s["gae"], s["return"]).
-    Reward per call = its own progress gain (call_gain), plus the flight's end reward on
-    its last call; V(state) = s["value_old"] (0 before the value head has learned).
-    Returns {(task, passage): calls in order}."""
+    """D213: explicit rewards and final-state bootstrap; reject legacy logs.
+
+    No inferred termination and no endpoint-gain fallback. A truncation must
+    carry a value computed from its real final observation, not reset state.
+    """
+    from ppo_math import gae
+    if not samples:
+        raise ValueError("PPO requires nonempty complete episodes")
     flights = {}
-    for s in samples:
-        flights.setdefault((s["task"], s["passage"]), []).append(s)
+    for sample in samples:
+        flights.setdefault((sample["task"], sample["passage"]), []).append(sample)
     for calls in flights.values():
         calls.sort(key=lambda s: s["call_index"])
-        advantage = 0.0
-        for i in reversed(range(len(calls))):
-            s = calls[i]
-            last = s["last_call"] or i == len(calls) - 1
-            reward = s["call_gain"] + (s["flight_reward"] if s["last_call"] else 0.0)
-            after = 0.0 if last else calls[i + 1].get("value_old", 0.0)
-            delta = reward + gamma * after - s.get("value_old", 0.0)
-            advantage = delta + (0.0 if last else gamma * lam * advantage)
-            s["gae"], s["return"] = advantage, advantage + s.get("value_old", 0.0)
+        if [s["call_index"] for s in calls] != list(range(len(calls))):
+            raise ValueError("missing or duplicate call indices")
+        for i, sample in enumerate(calls):
+            for key in ("reward_v2", "value_old", "terminated", "truncated"):
+                if key not in sample:
+                    raise ValueError("PPO legacy/incomplete rollout: missing " + key)
+            if i < len(calls)-1 and (sample["terminated"] or sample["truncated"]):
+                raise ValueError("episode contains calls after its boundary")
+            if sample["truncated"] and not sample.get("final_observation_id"):
+                raise ValueError("truncation requires actual final observation")
+        next_values = [calls[i+1]["value_old"] for i in range(len(calls)-1)]
+        last = calls[-1]
+        if last["terminated"]:
+            next_values.append(0.0)
+        elif last["truncated"] and "final_value" in last:
+            next_values.append(last["final_value"])
+        else:
+            raise ValueError("final boundary/bootstrap value missing")
+        adv, returns = gae([s["reward_v2"] for s in calls],
+                           [s["value_old"] for s in calls], next_values,
+                           [s["terminated"] for s in calls],
+                           [s["truncated"] for s in calls], gamma, lam)
+        for sample, a, ret in zip(calls, adv, returns, strict=True):
+            sample["gae"], sample["return"] = float(a), float(ret)
     return flights
 
 

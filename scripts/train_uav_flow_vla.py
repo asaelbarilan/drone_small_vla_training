@@ -358,6 +358,12 @@ def encode(processor, tokenizer, row, k, gray=False, with_answer=True, image=Non
         batch = append_ids(batch, box)
         return append_ids(batch, progress) if "progress_text" in row else batch
     prompt_length = batch["input_ids"].shape[1]
+    if row.get("box_context"):
+        # D209: student-generated boxes are conditioning, never teacher targets.
+        if row.get("grounding_only") or not box:
+            raise ValueError("box_context requires a box prefix and cannot be grounding_only")
+        batch = append_ids(batch, box)
+        prompt_length, box = batch["input_ids"].shape[1], []
     if row.get("progress_context"):
         # Rollouts (D175): the progress line was the server's, the actions are the
         # policy's; the line is context, only the actions are scored.
@@ -389,6 +395,12 @@ def encode(processor, tokenizer, row, k, gray=False, with_answer=True, image=Non
         batch["has_action"] = torch.tensor([1 if slots else 0])
     batch["labels"] = labels
     return batch
+
+
+def frame_key(path):
+    """Stable frame identity across Linux/Windows copies of the same store."""
+    parts = str(path).replace("\\", "/").split("/")
+    return "/".join(parts[-2:])
 
 
 def box_ids(processor, row):
@@ -771,15 +783,15 @@ def main():
         for line in args.boxes.read_text(encoding="utf-8").splitlines():
             if line.strip():
                 item = json.loads(line)
-                labels[item["image"]] = item["box"]
+                labels[frame_key(item["image"])] = item["box"]
         boxed = 0
         for r in [*train, *held, *sim_held]:
-            if r["image"] in labels:
-                box = labels[r["image"]]
+            if frame_key(r["image"]) in labels:
+                box = labels[frame_key(r["image"])]
                 r["box"] = mirror_box(box) if r.get("mirror") else box
                 boxed += 1
-                if args.next_box and r.get("image_next") in labels:
-                    future = labels[r["image_next"]]
+                if args.next_box and frame_key(r.get("image_next", "")) in labels:
+                    future = labels[frame_key(r["image_next"])]
                     r["next_box"] = mirror_box(future) if r.get("mirror") else future
         extra_boxed = [r for r in train if "box" in r] * (args.box_repeat - 1)
         train += extra_boxed
@@ -796,19 +808,21 @@ def main():
         train = sim_rows + real_rows
         if main_rank:
             print(json.dumps(dict(sim_rows=len(sim_rows), real_rows=len(real_rows))), flush=True)
-    if args.grounding_only or args.grounding_mix:
-        from box_eval import balanced_sample
-        pool = list({r["id"]: r for r in train if "box" in r}.values())
-        size = len(pool) if args.grounding_only else round(args.grounding_mix * len(train))
-        grounding = [{**r, "grounding_only": True} for r in balanced_sample(pool, size)]
-        train = grounding if args.grounding_only else train + grounding
-        if main_rank:
-            print(json.dumps(dict(grounding_examples=len(grounding), train_examples=len(train))), flush=True)
     for path in args.extra_rows:
         extra = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
         train += extra * args.extra_repeat
         if main_rank:
             print(json.dumps(dict(extra_rows=str(path), rows=len(extra), repeat=args.extra_repeat)), flush=True)
+    if args.grounding_only or args.grounding_mix:
+        from box_eval import balanced_sample
+        pool = list({r["id"]: r for r in train if "box" in r and not r.get("box_context") and not r.get("grounding_only")}.values())
+        if not pool:
+            raise ValueError("Grounding supervision requested but no labelled training frames are available")
+        size = len(pool) if args.grounding_only else round(args.grounding_mix * len(train))
+        grounding = [{**r, "grounding_only": True} for r in balanced_sample(pool, size)]
+        train = grounding if args.grounding_only else train + grounding
+        if main_rank:
+            print(json.dumps(dict(grounding_examples=len(grounding), train_examples=len(train))), flush=True)
     if not held:
         # A store without validation flights (the Windows RL anchor store): validate on a
         # fixed sample of training rows, so the curves still show the fit (D185).

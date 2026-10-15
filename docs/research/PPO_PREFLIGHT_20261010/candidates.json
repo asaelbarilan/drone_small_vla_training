@@ -1,0 +1,223 @@
+[
+  {
+    "id": "E01",
+    "title": "Proximal Policy Optimization Algorithms",
+    "url": "https://arxiv.org/pdf/1707.06347",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E02",
+    "title": "High-Dimensional Continuous Control Using Generalized Advantage Estimation",
+    "url": "https://arxiv.org/html/1506.02438v6",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E03",
+    "title": "Implementation Matters in Deep Policy Gradients: A Case Study on PPO and TRPO",
+    "url": "https://arxiv.org/html/2005.12729v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E04",
+    "title": "What Matters In On-Policy Reinforcement Learning? A Large-Scale Empirical Study",
+    "url": "https://arxiv.org/html/2006.05990v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E05",
+    "title": "Time Limits in Reinforcement Learning",
+    "url": "https://proceedings.mlr.press/v80/pardo18a/pardo18a.pdf",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E06",
+    "title": "A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning",
+    "url": "https://proceedings.mlr.press/v15/ross11a/ross11a.pdf",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E07",
+    "title": "What Can RL Bring to VLA Generalization? An Empirical Study",
+    "url": "https://arxiv.org/html/2505.19789v2",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E08",
+    "title": "SimpleVLA-RL: Scaling VLA Training via Reinforcement Learning",
+    "url": "https://arxiv.org/html/2509.09674v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E09",
+    "title": "Interactive Post-Training for Vision-Language-Action Models",
+    "url": "https://arxiv.org/html/2505.17016v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E10",
+    "title": "VLA-RL: Towards Masterful and General Robotic Manipulation with Scalable Reinforcement Learning",
+    "url": "https://arxiv.org/html/2505.18719v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E11",
+    "title": "ConRFT: A Reinforced Fine-tuning Method for VLA Models via Consistency Policy",
+    "url": "https://arxiv.org/html/2502.05450v2",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E12",
+    "title": "WorldVLN: Autoregressive World Action Model for Aerial Vision-Language Navigation",
+    "url": "https://arxiv.org/html/2605.15964v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E13",
+    "title": "RLinf: Flexible and Efficient Large-scale Reinforcement Learning via Macro-to-Micro Flow Transformation",
+    "url": "https://arxiv.org/html/2509.15965v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E14",
+    "title": "RLinf-Co: Reinforcement Learning-Based Sim-Real Co-Training for VLA Models",
+    "url": "https://arxiv.org/html/2602.12628v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E15",
+    "title": "UAV-Flow Colosseo: A Real-World Benchmark for Flying-on-a-Word UAV Imitation Learning",
+    "url": "https://arxiv.org/html/2505.15725v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E16",
+    "title": "LIBERO: A Benchmark for Lifelong Robot Learning",
+    "url": "https://arxiv.org/html/2306.03310v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E17",
+    "title": "RoboTwin 2.0: A Scalable Data Generator and Benchmark with Strong Domain Randomization for Robust Bimanual Robotic Manipulation",
+    "url": "https://arxiv.org/html/2506.18088v2",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E18",
+    "title": "What Are We Actually Benchmarking in Robot Manipulation?",
+    "url": "https://arxiv.org/html/2606.04233v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E19",
+    "title": "Deep Reinforcement Learning at the Edge of the Statistical Precipice",
+    "url": "https://arxiv.org/html/2108.13264v3",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E20",
+    "title": "Deep Reinforcement Learning That Matters",
+    "url": "https://arxiv.org/html/1709.06560v3",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E21",
+    "title": "Empirical Design in Reinforcement Learning",
+    "url": "https://jmlr.org/papers/volume25/23-0183/23-0183.pdf",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E22",
+    "title": "DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models",
+    "url": "https://arxiv.org/html/2402.03300v3",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E23",
+    "title": "Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware",
+    "url": "https://arxiv.org/html/2304.13705v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E24",
+    "title": "Fine-Tuning Vision-Language-Action Models: Optimizing Speed and Success",
+    "url": "https://arxiv.org/html/2502.19645v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E25",
+    "title": "OpenVLA: An Open-Source Vision-Language-Action Model",
+    "url": "https://arxiv.org/html/2406.09246v1",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E26",
+    "title": "The 37 Implementation Details of Proximal Policy Optimization",
+    "url": "https://iclr-blog-track.github.io/2022/03/25/ppo-implementation-details/",
+    "decision": "retained",
+    "screening": "methods_results"
+  },
+  {
+    "id": "E27",
+    "title": "Gymnasium: Handling Time Limits",
+    "url": "https://gymnasium.farama.org/tutorials/gymnasium_basics/handling_time_limits/",
+    "decision": "retained",
+    "screening": "resource_only"
+  },
+  {
+    "id": "C28",
+    "title": "Trust Region Policy Optimization",
+    "year": 2015,
+    "url": "https://arxiv.org/abs/1502.05477",
+    "screening": "abstract",
+    "decision": "background only; PPO paper sufficient for selected first-order design"
+  },
+  {
+    "id": "C29",
+    "title": "LIBERO-VPro: Benchmarking Closed-Loop Visual Robustness of Robotic Foundation Models",
+    "year": 2026,
+    "url": "https://arxiv.org/abs/2609.24350",
+    "screening": "abstract",
+    "decision": "recent robustness candidate; not used for central claims without methods review"
+  },
+  {
+    "id": "C30",
+    "title": "What Matters for Batch Online Reinforcement Learning in Robotics?",
+    "year": 2025,
+    "url": "https://arxiv.org/abs/2505.08078",
+    "screening": "abstract",
+    "decision": "deferred; bounded scope already covers chosen on-policy implementation questions"
+  },
+  {
+    "id": "C31",
+    "title": "Policy Invariance Under Reward Transformations: Theory and Application to Reward Shaping",
+    "year": 1999,
+    "url": "https://ai.stanford.edu/~ang/papers/shaping-icml99.pdf",
+    "screening": "PDF retrieved but text extraction corrupted",
+    "decision": "not counted as deeply inspected; shaping theorem must not be claimed proved locally"
+  }
+]

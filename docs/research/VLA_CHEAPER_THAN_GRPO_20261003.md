@@ -1,3 +1,5 @@
+> Correction (D210/D211, 2026-10-10): this historical proposal overstated the geometric teacher as exact and under-scoped validation. That claim is withdrawn. Its suggested benchmark-task flight testing is not authorized; use held-out validation only. See docs/RESEARCH.md D210/D211 and the D212 PPO preflight review.
+
 # Cheaper / faster than GRPO for our drone VLA (2026-10-03)
 
 **NO CODE CHANGED.** Research note (D184). PDFs: `papers/vla_post_training/`.
