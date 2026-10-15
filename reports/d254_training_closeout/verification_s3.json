@@ -1,0 +1,44 @@
+{
+  "checked_utc": "2026-10-15T17:52:38.797170+00:00",
+  "objects": [
+    {
+      "key": "d254/closeout_20261015/reports_source.zip",
+      "error": "An error occurred (404) when calling the HeadObject operation: Not Found"
+    },
+    {
+      "key": "d255/full_vla/base/model-00001-of-00002.safetensors",
+      "bytes": 4967229296,
+      "checksum_sha256": "MKAaBVZiJkWjzOh7ZVu7u8HxcMGWCZ8bZmyTICwzOak=",
+      "etag": "\"c591eca9f96dd4410d6772da2d2c1c1b\"",
+      "size_and_sha256_match": true
+    },
+    {
+      "key": "d255/full_vla/base/model-00002-of-00002.safetensors",
+      "bytes": 3908490048,
+      "checksum_sha256": "BGKWoqOH77Q7DJl9WDPHiWBNFog09uDTBkv3uxPQAqY=",
+      "etag": "\"9c9c88728c44a09c57fdd04ea6ac5464\"",
+      "size_and_sha256_match": true
+    },
+    {
+      "key": "d255/full_vla/package_assets.zip",
+      "bytes": 4226178,
+      "checksum_sha256": "8gbaOPNkndH5VbijO7fsFKzP2q4ZVvaZYrZ44ctaPKs=",
+      "etag": "\"0ba6ea9a55d58e2c45ba04d81d7d5be3\"",
+      "size_and_sha256_match": true
+    },
+    {
+      "key": "d255/closeout_supplement.zip",
+      "bytes": 1542740,
+      "checksum_sha256": "ZEupvy4LlYhG104pZv2CRPTwA/UbDTW6A8AoxZJPUcg=",
+      "etag": "\"8de958bbb291f8a621c6f0a0c228a6cf\"",
+      "size_and_sha256_match": true
+    },
+    {
+      "key": "d255/full_vla/adapter/adapter_model.safetensors",
+      "bytes": 322279296,
+      "etag": "\"6f311d445af79988be152cb18f1905e6\""
+    }
+  ],
+  "all_backups_complete": false,
+  "issue": "Reports archive upload exited with ConnectionError/write TimeoutError; S3 HeadObject 404. Local archive preserved. No automatic retry."
+}
