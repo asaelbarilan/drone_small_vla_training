@@ -1,0 +1,388 @@
+{
+  "status": "verified",
+  "ready_for_instance_and_disk_removal": true,
+  "scope": "Required model, training-resume data/code, and research reports; not a full OS or VM image.",
+  "reports": {
+    "checked_utc": "2026-10-16T10:33:18.154514+00:00",
+    "parts": [
+      {
+        "part": 1,
+        "key": "d256/reports_parts/part-0001.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "Z3Qgzfc1W2lsXigjh5UitIQkAtizjFP8PkttIbGQkTI=",
+        "verified": true
+      },
+      {
+        "part": 2,
+        "key": "d256/reports_parts/part-0002.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "MsJwtlUagEwd8QhfYGt8GMRKuUmydUwBQMMto2Weht8=",
+        "verified": true
+      },
+      {
+        "part": 3,
+        "key": "d256/reports_parts/part-0003.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "Gxj3uuENUaV/3OLAe/QaksIUeKOrv8kmdFrPSLnrfeA=",
+        "verified": true
+      },
+      {
+        "part": 4,
+        "key": "d256/reports_parts/part-0004.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "01Ewgfts2t1nOzXlAi6vuesztvTV9MfaFI2HXX9dlnA=",
+        "verified": true
+      },
+      {
+        "part": 5,
+        "key": "d256/reports_parts/part-0005.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "6OwOn+EK2keJMr4j9B+B+MmASidxvv3fVF1vL+2CkzU=",
+        "verified": true
+      },
+      {
+        "part": 6,
+        "key": "d256/reports_parts/part-0006.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "p+XPqKHwWv1B66FU1tpOEqGi8insRmXHka2UkITOkUg=",
+        "verified": true
+      },
+      {
+        "part": 7,
+        "key": "d256/reports_parts/part-0007.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "4dOAJhuTdcmc/Oh4PN5k7kJ6n3vvBg0+bdpNXEzWjZY=",
+        "verified": true
+      },
+      {
+        "part": 8,
+        "key": "d256/reports_parts/part-0008.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "ev+QNzH7DeDi4WLrFOW4CIIQOj5DX/hr2Ks8o8cp7bo=",
+        "verified": true
+      },
+      {
+        "part": 9,
+        "key": "d256/reports_parts/part-0009.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "uGToV6AjyL/EiatoyeUQt7IXGXhzFL1cc0NyHGcEwUM=",
+        "verified": true
+      },
+      {
+        "part": 10,
+        "key": "d256/reports_parts/part-0010.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "S5VNcKyE3TV/r7aDUtKxJEsIxGhbCuMapDAE/RCMx3o=",
+        "verified": true
+      },
+      {
+        "part": 11,
+        "key": "d256/reports_parts/part-0011.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "OSlfdsg9LnVUdaP+kdpW4F+hlrcxkyF/I+0zMA+1wkg=",
+        "verified": true
+      },
+      {
+        "part": 12,
+        "key": "d256/reports_parts/part-0012.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "jdlNHVc4ebvGqy6/33WdKE0wRmgJXLnRRjcRPPe+95s=",
+        "verified": true
+      },
+      {
+        "part": 13,
+        "key": "d256/reports_parts/part-0013.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "u0qp/nvnKy5JVkDQVCwrGd2JxYqTiX8quSF/eTuYSzk=",
+        "verified": true
+      },
+      {
+        "part": 14,
+        "key": "d256/reports_parts/part-0014.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "kBljW0MykDd5ZAzWpqDzTG9O/WJk/zT7zP/08k1EpNk=",
+        "verified": true
+      },
+      {
+        "part": 15,
+        "key": "d256/reports_parts/part-0015.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "np+NfZ/7hf+MeypBwXmvTtJOOa0XtDAitPkJqtFeSKc=",
+        "verified": true
+      },
+      {
+        "part": 16,
+        "key": "d256/reports_parts/part-0016.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "90LEENRdTvw+8T4bvv/OxFnBnQPLdMW0QY5vUGOs12w=",
+        "verified": true
+      },
+      {
+        "part": 17,
+        "key": "d256/reports_parts/part-0017.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "wwd8iDoPwjDZnBaMlbk5FsHYRwusJ7ooqEn+A58qXfs=",
+        "verified": true
+      },
+      {
+        "part": 18,
+        "key": "d256/reports_parts/part-0018.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "94V85Fut40ETSjBBZ+nugTJ0mtOICNZzDWU+jIpzxEc=",
+        "verified": true
+      },
+      {
+        "part": 19,
+        "key": "d256/reports_parts/part-0019.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "qvwrkZabtqwGYbOsrooU/d0ogdpqRPDMzM/HZ1dX5LE=",
+        "verified": true
+      },
+      {
+        "part": 20,
+        "key": "d256/reports_parts/part-0020.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "CjqNWN5fSOmOOo2n+KAuMSFSCdFE7JtD1A+13OU3HU0=",
+        "verified": true
+      },
+      {
+        "part": 21,
+        "key": "d256/reports_parts/part-0021.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "6iQL36ZMuIjLtk4KN4hy1M/V1roJ3zeBnPjkOvJP5YM=",
+        "verified": true
+      },
+      {
+        "part": 22,
+        "key": "d256/reports_parts/part-0022.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "HhTFQ0lVP8qo9rse79ukpiEgRYosvtOKVNDOQVOofy4=",
+        "verified": true
+      },
+      {
+        "part": 23,
+        "key": "d256/reports_parts/part-0023.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "pWAVxddPpUjxKKdVS5ohuQFUwIB2GVv6nzd0yJHBCis=",
+        "verified": true
+      },
+      {
+        "part": 24,
+        "key": "d256/reports_parts/part-0024.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "x4UeV8gty2vfP8z+SUdcM3A3Gr5YtIbWkz1+bnRWGY8=",
+        "verified": true
+      },
+      {
+        "part": 25,
+        "key": "d256/reports_parts/part-0025.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "SKUvw/3/d6gZdmuQbQftnzuAIrrrAYI5g+r0twdHSpQ=",
+        "verified": true
+      },
+      {
+        "part": 26,
+        "key": "d256/reports_parts/part-0026.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "aB5eLSsT3J0ucLDtcgTzIWxYB9moQFTMn1zgA6vKDRM=",
+        "verified": true
+      },
+      {
+        "part": 27,
+        "key": "d256/reports_parts/part-0027.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "/BGdGK3uGklzwC4mUU9PD9Gk8N4EI1rIvANknj8b/kw=",
+        "verified": true
+      },
+      {
+        "part": 28,
+        "key": "d256/reports_parts/part-0028.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "GPouF7+lZt9nVIy2T+AOZ8yurm4slykWdDTXqeq49xI=",
+        "verified": true
+      },
+      {
+        "part": 29,
+        "key": "d256/reports_parts/part-0029.bin",
+        "bytes": 134217728,
+        "checksum_sha256": "NG+1OTaFYMXCxpwvdxzsOBAlEHDI+H32BZ4IUQdH3lo=",
+        "verified": true
+      },
+      {
+        "part": 30,
+        "key": "d256/reports_parts/part-0030.bin",
+        "bytes": 1537556,
+        "checksum_sha256": "WVZqnMUahdA/ZKaxFBfWpo3JwSJ97jY6302PGBE7Gc8=",
+        "verified": true
+      }
+    ],
+    "all_verified": true,
+    "archive_bytes": 3893851668,
+    "archive_sha256": "31669287a6f2d9990600f88af059e49c7702015a6bca8ebadba3d2e63ba33ab5"
+  },
+  "assets": {
+    "checked_utc": "2026-10-16T10:25:44.641368+00:00",
+    "files": [
+      {
+        "key": "d170/store.tar",
+        "bytes": 75371663360,
+        "etag": "\"fa82ff982b7cc32bf9e846c259c675da-2247\""
+      },
+      {
+        "key": "d193/boxes.jsonl",
+        "bytes": 9823300,
+        "etag": "\"c38d86fa42ad0b86315f344f8a2400b0-2\""
+      },
+      {
+        "key": "d172/d188_dagger_r1.zip",
+        "bytes": 50314897,
+        "etag": "\"2fd053ecfb5d2f085aaf019f374f4072-6\""
+      },
+      {
+        "key": "d172/d190_dagger_r1.zip",
+        "bytes": 111288326,
+        "etag": "\"932758286f681fe47c9b0fc45bd6e2a1-14\""
+      },
+      {
+        "key": "d204/vla_code.zip",
+        "bytes": 800917,
+        "etag": "\"ac8ca372ba327ffc0ebdf36bad35b65d\""
+      },
+      {
+        "key": "d207/stage2/checkpoint/state.pt",
+        "bytes": 645101597,
+        "etag": "\"317c38b07bfa43da208145f94a023394-77\""
+      },
+      {
+        "key": "d207/stage2/checkpoint/adapter_model.safetensors",
+        "bytes": 322279296,
+        "etag": "\"3c1ff02172f16d20a6a0ae6c1a2d44c4-39\""
+      },
+      {
+        "key": "d207/stage2/checkpoint/adapter_config.json",
+        "bytes": 1242,
+        "etag": "\"3ac60fa746a88bc142ae639e76703ac9\""
+      },
+      {
+        "key": "d207/stage2/report.json",
+        "bytes": 202377,
+        "etag": "\"227d265acff94c697a9791f0954c8497\""
+      },
+      {
+        "key": "d207/stage2/sim_val_flights.json",
+        "bytes": 13608,
+        "etag": "\"31b6b7fb392c02b2f6fe0f135a0b60f5\""
+      },
+      {
+        "key": "d240/training/checkpoints/CURRENT.json",
+        "bytes": 148,
+        "etag": "\"c139d62e191e4d053400223f751e0c69\""
+      },
+      {
+        "key": "d255/full_vla/package_assets.zip",
+        "bytes": 4226178,
+        "etag": "\"0ba6ea9a55d58e2c45ba04d81d7d5be3\"",
+        "sha256_base64": "8gbaOPNkndH5VbijO7fsFKzP2q4ZVvaZYrZ44ctaPKs="
+      },
+      {
+        "key": "d255/full_vla/base/model-00001-of-00002.safetensors",
+        "bytes": 4967229296,
+        "etag": "\"c591eca9f96dd4410d6772da2d2c1c1b\"",
+        "sha256_base64": "MKAaBVZiJkWjzOh7ZVu7u8HxcMGWCZ8bZmyTICwzOak="
+      },
+      {
+        "key": "d255/full_vla/base/model-00002-of-00002.safetensors",
+        "bytes": 3908490048,
+        "etag": "\"9c9c88728c44a09c57fdd04ea6ac5464\"",
+        "sha256_base64": "BGKWoqOH77Q7DJl9WDPHiWBNFog09uDTBkv3uxPQAqY="
+      },
+      {
+        "key": "d255/full_vla/adapter/adapter_model.safetensors",
+        "bytes": 322279296,
+        "etag": "\"6f311d445af79988be152cb18f1905e6\""
+      },
+      {
+        "key": "d255/closeout_supplement.zip",
+        "bytes": 1542740,
+        "etag": "\"8de958bbb291f8a621c6f0a0c228a6cf\"",
+        "sha256_base64": "ZEupvy4LlYhG104pZv2CRPTwA/UbDTW6A8AoxZJPUcg="
+      },
+      {
+        "key": "win_bundle.tgz",
+        "bytes": 300867863,
+        "etag": "\"b7ca74e4068902c57a907feb5c4c6033\""
+      }
+    ],
+    "instances": [
+      {
+        "id": "i-03a3c8632314bf5fc",
+        "state": "stopped",
+        "volumes": [
+          "vol-02e8231bb8920b3a9"
+        ]
+      },
+      {
+        "id": "i-05f21d6200f5c1045",
+        "state": "stopped",
+        "volumes": [
+          "vol-01459786d91f4e270"
+        ]
+      }
+    ]
+  },
+  "additional_assets": {
+    "files": [
+      {
+        "key": "d207/stage2/adapter_s8000/adapter_model.safetensors",
+        "bytes": 322279296,
+        "etag": "\"3c1ff02172f16d20a6a0ae6c1a2d44c4-39\""
+      },
+      {
+        "key": "d240/training/checkpoints/step_000004_7a2bd7a99fdf452bac2a7e0502164ca1/manifest.json",
+        "bytes": 577,
+        "etag": "\"d1645ecd0eaeb562de3c5591c2396633\""
+      },
+      {
+        "key": "d240/training/checkpoints/step_000004_7a2bd7a99fdf452bac2a7e0502164ca1/state.pt",
+        "bytes": 529039020,
+        "etag": "\"7cfbee354c7c5da80c738a13acc93f10-64\""
+      },
+      {
+        "key": "d240/training/checkpoints/step_000004_7a2bd7a99fdf452bac2a7e0502164ca1/adapter/action/adapter_model.safetensors",
+        "bytes": 322279296,
+        "etag": "\"5f77220af1383c3b159ae002d547af1e-39\""
+      }
+    ],
+    "lifecycle": "An error occurred (NoSuchLifecycleConfiguration) when calling the GetBucketLifecycleConfiguration operation: The lifecycle configuration does not exist"
+  },
+  "resume_checkpoint": {
+    "state_keys": [
+      "step",
+      "optimiser",
+      "report"
+    ],
+    "step": 8000,
+    "optimizer_present": true,
+    "code_zip_crc_ok": true,
+    "code_files": 107,
+    "normalization_files": [
+      "release/qwen3vl4b_uavflow_vla/action_stats_manifest_10shard.json",
+      "reports/uav_flow_chunks_20260921/action_stats.json",
+      "reports/uav_flow_chunks_20260921/manifest.json",
+      "reports/uav_flow_closed_loop_20260925/data_manifest_10shard.json",
+      "reports/uav_flow_official_10shard/manifest.json",
+      "reports/uav_flow_official_20260922/manifest.json",
+      "reports/uav_flow_pilot_20260921/manifest.json",
+      "reports/uav_flow_steps_20260921/manifest.json"
+    ],
+    "optimizer_key": "optimiser",
+    "optimizer_parameter_states": 712,
+    "optimizer_param_groups": 2,
+    "optimizer_moment_entries": 712,
+    "rng_state_saved": false
+  },
+  "dataset_archive_fully_redownloaded": false,
+  "fresh_gpu_restore_test": false,
+  "instances_and_disks_deleted": false,
+  "final_metadata_key": "d256/final_closeout.zip"
+}

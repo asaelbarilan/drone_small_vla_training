@@ -17,6 +17,9 @@ Retain original `d207/stage2/checkpoint/` (adapter/config/state.pt), `d207/stage
 
 ## Research and source
 
-GitHub main contains source/tests/research. `d255/closeout_supplement.zip` includes Git bundle and latest closeout documents. Full historical reports/source archive is `d254/closeout_20261015/reports_source.zip`. Consult `backup_status.json` and final `verification_s3.json` for pending versus verified objects; never equate an upload launch with backup completion.
+GitHub main contains source/tests/research. `d255/closeout_supplement.zip` includes Git bundle and latest closeout documents. Full historical reports/source archive is stored as ordered objects under `d256/reports_parts/`, with `manifest.json`. The earlier single-object upload failed and must not be used. Download the parts and run `python scripts/release/restore_report_parts.py parts/manifest.json parts reports_source.zip`; this checks every part and the assembled SHA256. The reconstruction script is also saved at `d256/restore_report_parts.py`. Consult `backup_status.json` and final `verification_s3.json` for pending versus verified objects; never equate an upload launch with backup completion.
 
 No disk deletion or HF publication has been performed.
+
+
+D256 verification complete: all30report parts match S3 SHA256/size. Step8000 optimizer state was downloaded and inspected (712 parameter moments). Final closeout metadata and Git history: `d256/final_closeout.zip`. Both machines/disks may be removed for preserving these training/research assets; no full OS image is retained. Reinstall environments later. No deletion performed.

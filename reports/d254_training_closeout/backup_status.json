@@ -3,19 +3,20 @@
   "github_url": "https://github.com/asaelbarilan/drone_small_vla_training",
   "reports_session": 27112,
   "full_model_session": 27680,
-  "reports_upload_key": "d254/closeout_20261015/reports_source.zip",
+  "reports_upload_key": "d256/reports_parts/manifest.json",
   "reports_sha256": "31669287a6f2d9990600f88af059e49c7702015a6bca8ebadba3d2e63ba33ab5",
   "reports_bytes": 3893851668,
-  "status": "reports_upload_failed_full_vla_verified",
+  "status": "verified_resumable_reports_and_model_backup",
   "instances_started": false,
   "disks_deleted": false,
   "hf_published": false,
-  "monitor": "verify-vla-closeout-backups",
+  "monitor": null,
   "small_s3_checksums_verified": [
     "d255/full_vla/package_assets.zip",
     "d255/closeout_supplement.zip"
   ],
-  "all_backups_complete": false,
-  "issue": "Reports archive upload exited with ConnectionError/write TimeoutError; S3 HeadObject 404. Local archive preserved. No automatic retry.",
-  "checked_utc": "2026-10-15T17:52:38.797170+00:00"
+  "all_backups_complete": true,
+  "issue": null,
+  "checked_utc": "2026-10-16T10:33:18.154514+00:00",
+  "ready_for_instance_and_disk_removal": true
 }
